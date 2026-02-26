@@ -196,15 +196,20 @@
 
         // データベース（Googleスプレッドシート）へこっそり送信
         // YOUR_GAS_URL_HERE を自分のGASのURLに書き換えてください
+        // データベース（Googleスプレッドシート）へ送信
         const gasUrl = 'https://script.google.com/macros/s/AKfycbyW8CRcuMZ1aIZgCORx7k0CQPc0f25awVmtC_fkeyfLmiFwlzlXxetA4OgmZqUFMo7hqA/exec';
-        if(gasUrl !== 'https://script.google.com/macros/s/AKfycbyW8CRcuMZ1aIZgCORx7k0CQPc0f25awVmtC_fkeyfLmiFwlzlXxetA4OgmZqUFMo7hqA/exec') {
-            fetch(gasUrl, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: userName, job: finalJobName })
-            });
-        }
+        
+        // fetchをそのまま実行するように変更
+        fetch(gasUrl, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: userName, job: finalJobName })
+        }).then(() => {
+            console.log("Data sent to Google Sheets");
+        }).catch((error) => {
+            console.error("Error sending data:", error);
+        });
 
         document.getElementById('btn-share').onclick = () => {
             const text = encodeURIComponent(`【M男転生診断結果】\n私のジョブは「${finalJobName}」でした！\n女勇者にイかされてきます。\n#M男転生診断 #異世界転生`);
@@ -214,5 +219,6 @@
 </script>
 </body>
 </html>
+
 
 
