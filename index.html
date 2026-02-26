@@ -102,27 +102,31 @@
     let finalJobName = "";
     let userName = "";
 
-    // ノベル設定
-    const scenario = [
-        "ごく普通の、どこにでもある平凡な一日だった。",
-        "仕事帰りのコンビニ。いつものコーヒー。",
-        "ふと見上げた夜空に、見たこともない色の星が流れた気がした。",
+    // --- ノベル設定（名前を埋め込めるように動的生成） ---
+    const getScenario = (name) => [
+        `俺の名前は、${name}。`,
+        "ごく普通の、どこにでもある平凡な毎日を送る男だ。",
+        "仕事帰りのコンビニ。いつものコーヒー。それが唯一の癒やしだった。",
+        "だが、ふと見上げた夜空に、見たこともない色の星が流れた気がした。",
         "「……ん？」",
         "背後から、不自然なほどの熱風と、鼓膜を震わせる轟音が迫る。",
         "振り返ると、そこには光り輝くトラックが――"
     ];
     let novelIndex = 0;
+    let currentScenario = [];
 
     function startNovel() {
         userName = document.getElementById('user-name').value || "名無し";
+        currentScenario = getScenario(userName); // シナリオに名前を流し込む
+        
         document.getElementById('start-screen').classList.add('hidden');
         document.getElementById('novel-screen').classList.remove('hidden');
         showNextSentence();
     }
 
     function showNextSentence() {
-        if (novelIndex < scenario.length) {
-            document.getElementById('novel-text').innerText = scenario[novelIndex];
+        if (novelIndex < currentScenario.length) {
+            document.getElementById('novel-text').innerText = currentScenario[novelIndex];
             novelIndex++;
         } else {
             startAccident();
@@ -131,13 +135,11 @@
 
     function nextNovel() { showNextSentence(); }
 
-    // ★今回の修正ポイント：スキップ時は演出を全飛ばし
+    // スキップ機能：全演出を飛ばして即座に女神とクイズへ
     function skipToQuiz() {
         userName = document.getElementById('user-name').value || "名無し";
         document.getElementById('novel-screen').classList.add('hidden');
         document.getElementById('start-screen').classList.add('hidden');
-        
-        // 女神とクイズ画面を即座に表示
         goddessWrap.classList.add('goddess-visible');
         document.getElementById('quiz').classList.remove('hidden');
         commentBox.innerText = `「せっかちな魂ね、${userName}。早速アンタの素質を見せてもらうわよ？」`;
@@ -181,6 +183,7 @@
         }, 3000);
     }
 
+    // ジョブデータ
     const jobs = {
         alchemist: { n: "実験体錬金術師", s: "劇薬耐性(快感)", i: "怪しい薬の試験管", o: "ハッピーセット", c: "女勇者の作る怪しいポーションを喜んで飲み干す姿……立派な変態ね。" },
         dog: { n: "勇者のペット（犬）", s: "お手・おかわり", i: "トゲ付きの首輪", o: "Mセット", c: "人間をやめて犬として生きる道を選んだのね。四つん這いで這いつくばりなさい！" },
@@ -194,6 +197,7 @@
 
     const goddessQuotes = ["「へぇー、そんなのが好きなんだ？」", "「素直でよろしいわ！」", "「アンタ、なかなかの逸材ね……」", "「それ、女勇者が聞いたら喜ぶわよ？」", "「ふふっ、次はどう答えるのかしら？」"];
     
+    // クイズ設問
     const qs = [
         { q: "女勇者に「今日から人間禁止。犬になりなさい」と言われたら？", a: [{t: "「ワン！」と即座に吠える", j: "dog"}, {t: "四つん這いで靴を舐める", j: "slime"}, {t: "首輪を要求する", j: "slave"}, {t: "屈辱に震えながら従う", j: "knight"}] },
         { q: "休憩中、女勇者が椅子に座ろうとしています。どうする？", a: [{t: "自分が床になって踏んでもらう", j: "floor"}, {t: "足台として跪く", j: "knight"}, {t: "彼女の足をマッサージする奴隷になる", j: "slave"}, {t: "お掃除スライムとして尻の下を掃除する", j: "slime"}] },
@@ -246,13 +250,14 @@
             <span style="color:var(--gold)">女勇者との相性：絶頂級</span>
         `;
 
+        // データベース送信
         const gasUrl = 'https://script.google.com/macros/s/AKfycbyW8CRcuMZ1aIZgCORx7k0CQPc0f25awVmtC_fkeyfLmiFwlzlXxetA4OgmZqUFMo7hqA/exec';
         fetch(gasUrl, {
             method: 'POST',
             mode: 'no-cors',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name: userName, job: finalJobName })
-        }).catch(err => console.log("Database save failed."));
+        }).catch(err => console.log("Save error"));
 
         document.getElementById('btn-share').onclick = () => {
             const text = encodeURIComponent(`【M男転生診断結果】\n私のジョブは「${finalJobName}」でした！\n女勇者にイかされてきます。\n#M男転生診断 #異世界転生`);
