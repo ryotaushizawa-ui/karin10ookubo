@@ -8,12 +8,13 @@
         :root { --primary: #9d50bb; --bg: #0f0c29; --text: #ffffff; --gold: #ffeb3b; --x-color: #000000; }
         body { background: var(--bg); color: var(--text); font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; overflow-y: auto; padding: 20px 0; }
         
-        #game-box { width: 92%; max-width: 480px; background: #1a1a2e; padding: 25px; border: 4px solid var(--primary); text-align: center; box-shadow: 10px 10px 0px #000; position: relative; opacity: 1; transition: opacity 1.5s; }
+        #game-box { width: 92%; max-width: 480px; background: #1a1a2e; padding: 25px; border: 4px solid var(--primary); text-align: center; box-shadow: 10px 10px 0px #000; position: relative; }
         
-        /* 女神とロゴを最初は隠しておくクラス */
-        .goddess-content { opacity: 0; transition: opacity 2s; }
-        .goddess-visible { opacity: 1 !important; }
+        /* 女神演出用 */
+        .goddess-content { opacity: 0; transition: opacity 2s; display: none; }
+        .goddess-visible { opacity: 1 !important; display: block !important; }
 
+        /* トラック演出用 */
         #accident-scene { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 9999; display: none; align-items: center; justify-content: center; }
         #truck { position: absolute; font-size: 8rem; right: -250px; transition: none; z-index: 10001; }
         #accident-txt { color: #000; font-size: 2rem; font-weight: bold; z-index: 10000; }
@@ -32,6 +33,9 @@
             border-width: 0 12px 15px 12px; border-style: solid; 
             border-color: transparent transparent #ffffff transparent; 
         }
+
+        /* 入力フォーム */
+        #user-name { padding: 12px; width: 80%; margin-bottom: 20px; border-radius: 5px; border: 2px solid var(--primary); text-align: center; font-size: 1rem; background: #000; color: #fff; }
 
         .choices { display: grid; gap: 10px; }
         button { background: #eee; border: none; padding: 15px; font-weight: bold; cursor: pointer; box-shadow: 4px 4px 0px #666; font-size: 1rem; color: #000; transition: 0.1s; width: 100%; }
@@ -60,7 +64,8 @@
     </div>
 
     <div id="start-screen">
-        <p style="margin-bottom: 20px; font-size: 0.9rem; color: #aaa;">ごく普通の日常が、一台のトラックで終わりを告げる…</p>
+        <p style="margin-bottom: 20px; font-size: 0.9rem; color: #aaa;">平凡な日常の終わりは、突然やってくる…</p>
+        <input type="text" id="user-name" placeholder="転生前の名前を入力..." maxlength="15">
         <button onclick="startAccident()">異世界へ転生する</button>
     </div>
 
@@ -71,7 +76,7 @@
     </div>
 
     <div id="result" class="hidden">
-        <div style="font-weight: bold; font-size: 0.8rem;">鑑定結果：アンタのジョブは…</div>
+        <div style="font-weight: bold; font-size: 0.8rem;">鑑定結果：<span id="res-name-label"></span>のジョブは…</div>
         <div class="job-res" id="job-name"></div>
         <div class="stats" id="detail"></div>
         <button id="btn-share" class="share-btn">結果をX(Twitter)でシェア</button>
@@ -83,19 +88,20 @@
     const commentBox = document.getElementById('goddess-comment');
     const goddessWrap = document.getElementById('goddess-wrap');
     let finalJobName = "";
+    let userName = "";
 
+    // トラック演出
     function startAccident() {
+        userName = document.getElementById('user-name').value || "名無し";
+        document.getElementById('start-screen').classList.add('hidden');
         const scene = document.getElementById('accident-scene');
         const truck = document.getElementById('truck');
         const txt = document.getElementById('accident-txt');
         
-        // 最初の画面を消す
-        document.getElementById('start-screen').classList.add('hidden');
-        
         scene.style.display = 'flex';
         let pos = -250;
         const drive = setInterval(() => {
-            pos += 6; // 少しだけ速度調整
+            pos += 5; // ゆっくり
             truck.style.right = pos + 'px';
             if (pos > window.innerWidth / 2 - 50) {
                 txt.innerText = "ガシャーーーーン！！";
@@ -104,28 +110,24 @@
             if (pos > window.innerWidth + 300) { clearInterval(drive); }
         }, 10);
 
-        // 衝突後の演出
         setTimeout(() => {
-            // 画面を白く飛ばす
             scene.style.background = "#fff";
             txt.innerText = "";
             truck.style.display = "none";
-            
             setTimeout(() => {
                 scene.style.opacity = "0";
                 setTimeout(() => {
                     scene.style.display = 'none';
-                    // 女神降臨
                     goddessWrap.classList.add('goddess-visible');
                     document.getElementById('quiz').classList.remove('hidden');
-                    commentBox.innerText = "「ひどい事故ねぇ。でもそのおかげでアンタ、才能が開花しそうよ？」";
+                    commentBox.innerText = `「ひどい事故ね、${userName}。でもそのおかげでアンタ、才能が開花しそうよ？」`;
                     showQ();
                 }, 1000);
             }, 1000);
-        }, 3000);
+        }, 3500);
     }
 
-    // --- 職業データとロジック (変更なし) ---
+    // ジョブデータ
     const jobs = {
         alchemist: { n: "実験体錬金術師", s: "劇薬耐性(快感)", i: "怪しい薬の試験管", o: "ハッピーセット", c: "女勇者の作る怪しいポーションを喜んで飲み干す姿……立派な変態ね。" },
         dog: { n: "勇者のペット（犬）", s: "お手・おかわり", i: "トゲ付きの首輪", o: "Mセット", c: "人間をやめて犬として生きる道を選んだのね。四つん這いで這いつくばりなさい！" },
@@ -139,17 +141,18 @@
 
     const goddessQuotes = ["「へぇー、そんなのが好きなんだ？」", "「素直でよろしいわ！」", "「アンタ、なかなかの逸材ね……」", "「それ、女勇者が聞いたら喜ぶわよ？」", "「ふふっ、次はどう答えるのかしら？」"];
     
+    // クイズ設問
     const qs = [
-        { q: "女勇者に「あんた、今日から人間禁止。犬になりなさい」と言われたら？", a: [{t: "「ワン！」と即座に吠える", j: "dog"}, {t: "四つん這いで靴を舐める", j: "slime"}, {t: "首輪を要求する", j: "slave"}, {t: "屈辱に震えながら従う", j: "knight"}] },
-        { q: "冒険の休憩中、女勇者が椅子に座ろうとしています。どうする？", a: [{t: "自分が床になって踏んでもらう", j: "floor"}, {t: "足台として跪く", j: "knight"}, {t: "彼女の足をマッサージする奴隷になる", j: "slave"}, {t: "お掃除スライムとして尻の下を掃除する", j: "slime"}] },
-        { q: "新しい薬の実験台が必要だと言われたら？", a: [{t: "喜んで毒薬でも飲み干す", j: "alchemist"}, {t: "体が変化して異形になるのを期待する", j: "slime"}, {t: "彼女に管理されるなら何でもいい", j: "slave"}, {t: "騎士の誇りを捨てて薬を乞う", j: "knight"}] },
-        { q: "敵の強力な魔法が迫っています。あなたの役割は？", a: [{t: "無言で肉体の盾になる", j: "shield"}, {t: "「盾になれて幸せ」と叫びながら突っ込む", j: "dog"}, {t: "自分の魔力を彼女に全部吸わせる", j: "mage"}, {t: "地面に伏せて彼女の足場を固める", j: "floor"}] },
-        { q: "女勇者が魔力不足です。どうやって助ける？", a: [{t: "杖として全身から魔力を搾り取らせる", j: "mage"}, {t: "怪しいポーションを錬成して自分も飲む", j: "alchemist"}, {t: "跪いて力を分け与える儀式（お仕置き）を受ける", j: "knight"}, {t: "ただの道具として消費される", j: "shield"}] },
-        { q: "「あんた、私の靴の裏でも掃除してなさい」と言われたら？", a: [{t: "スライム状になって綺麗に舐めとる", j: "slime"}, {t: "床として汚れをすべて引き受ける", j: "floor"}, {t: "「ご褒美ありがとうございます！」", j: "dog"}, {t: "奴隷として黙々と磨き上げる", j: "slave"}] },
-        { q: "街の人に、女勇者のペットとして紹介されたら？", a: [{t: "尻尾を振るフリをして喜ぶ", j: "dog"}, {t: "恥ずかしさで顔を真っ赤にする", j: "mage"}, {t: "当然の権利だと誇らしく思う", j: "slave"}, {t: "騎士としての名前を捨て去る", j: "knight"}] },
-        { q: "あなたが一番「自分は道具だ」と感じる瞬間は？", a: [{t: "盾としてボコボコに叩かれている時", j: "shield"}, {t: "床として踏みつけられている時", j: "floor"}, {t: "錬金術の材料として扱われる時", j: "alchemist"}, {t: "魔法を放つためのただの媒体になる時", j: "mage"}] },
-        { q: "一生、鉄枷を外さないと言われたら？", a: [{t: "永遠の束縛に歓喜する", j: "slave"}, {t: "彼女の所有物である証として愛でる", j: "dog"}, {t: "重みで動けない自分に興奮する", j: "shield"}, {t: "屈服した騎士の証として受け入れる", j: "knight"}] },
-        { q: "最後に選ぶ、あなたの「形」は？", a: [{t: "自我のない無機物（床・盾）", j: "floor"}, {t: "言葉を失った獣や魔物（犬・スライム）", j: "dog"}, {t: "意思を搾取される道具（魔法使い・錬金術師）", j: "mage"}, {t: "ただ従うだけの人間（騎士・奴隷）", j: "slave"}] }
+        { q: "女勇者に「今日から人間禁止。犬になりなさい」と言われたら？", a: [{t: "「ワン！」と即座に吠える", j: "dog"}, {t: "四つん這いで靴を舐める", j: "slime"}, {t: "首輪を要求する", j: "slave"}, {t: "屈辱に震えながら従う", j: "knight"}] },
+        { q: "休憩中、女勇者が椅子に座ろうとしています。どうする？", a: [{t: "自分が床になって踏んでもらう", j: "floor"}, {t: "足台として跪く", j: "knight"}, {t: "彼女の足をマッサージする奴隷になる", j: "slave"}, {t: "お掃除スライムとして尻の下を掃除する", j: "slime"}] },
+        { q: "新しい薬の実験台が必要だと言われたら？", a: [{t: "喜んで毒薬でも飲み干す", j: "alchemist"}, {t: "異形になるのを期待して飲む", j: "slime"}, {t: "彼女に管理されるなら何でもいい", j: "slave"}, {t: "誇りを捨てて薬を乞う", j: "knight"}] },
+        { q: "敵の強力な魔法が迫っています。あなたの役割は？", a: [{t: "無言で肉体の盾になる", j: "shield"}, {t: "「盾になれて幸せ」と叫び突っ込む", j: "dog"}, {t: "自分の魔力を彼女に全部吸わせる", j: "mage"}, {t: "地面に伏せて彼女の足場になる", j: "floor"}] },
+        { q: "女勇者が魔力不足です。どうやって助ける？", a: [{t: "杖として全身から魔力を搾り取らせる", j: "mage"}, {t: "怪しい薬を自作して実験台になる", j: "alchemist"}, {t: "跪いてお仕置きを受ける", j: "knight"}, {t: "ただの使い捨て道具になる", j: "shield"}] },
+        { q: "「あんた、私の靴の裏でも掃除してなさい」と言われたら？", a: [{t: "スライム状になって舐めとる", j: "slime"}, {t: "床として汚れをすべて引き受ける", j: "floor"}, {t: "「ご褒美ありがとうございます！」", j: "dog"}, {t: "奴隷として黙々と磨き上げる", j: "slave"}] },
+        { q: "街の人に、彼女のペットとして紹介されたら？", a: [{t: "尻尾を振るフリをして喜ぶ", j: "dog"}, {t: "羞恥心で顔を真っ赤にする", j: "mage"}, {t: "当然の権利だと誇らしく思う", j: "slave"}, {t: "騎士としての名前を喜んで捨てる", j: "knight"}] },
+        { q: "あなたが一番「道具だ」と感じる快感は？", a: [{t: "盾として叩かれている時", j: "shield"}, {t: "床として踏まれている時", j: "floor"}, {t: "材料として扱われる時", j: "alchemist"}, {t: "魔力を吸い取られるだけの媒体になる時", j: "mage"}] },
+        { q: "一生、外れない鉄枷をはめられたら？", a: [{t: "永遠の束縛に歓喜する", j: "slave"}, {t: "彼女の所有物である証として愛でる", j: "dog"}, {t: "重みで動けない自分に興奮する", j: "shield"}, {t: "屈服した証として受け入れる", j: "knight"}] },
+        { q: "最後に選ぶ、あなたの究極の姿は？", a: [{t: "自我のない無機物（床・盾）", j: "floor"}, {t: "言葉のない獣（犬・スライム）", j: "dog"}, {t: "意思を搾取される道具（杖・薬）", j: "mage"}, {t: "ただ従うだけの人間（騎士・奴隷）", j: "slave"}] }
     ];
 
     let currentQ = 0;
@@ -181,16 +184,30 @@
         let maxJob = Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
         const job = jobs[maxJob];
         finalJobName = job.n;
+        document.getElementById('res-name-label').innerText = userName;
         document.getElementById('job-name').innerText = job.n;
-        commentBox.innerText = "「判定が出たわよ！アンタにぴったりの無様な役職はこれ！」";
+        commentBox.innerText = `「決まったわよ、${userName}！アンタにぴったりの役職はこれ！」`;
         document.getElementById('detail').innerHTML = `
             <strong>女神の評価：</strong> ${job.c}<br><br>
             <strong>能力：</strong> ${job.s} / <strong>装備：</strong> ${job.i}<br>
             <div class="option-box">♥おすすめオプション：${job.o}</div><br>
             <span style="color:var(--gold)">女勇者との相性：絶頂級</span>
         `;
+
+        // データベース（Googleスプレッドシート）へこっそり送信
+        // YOUR_GAS_URL_HERE を自分のGASのURLに書き換えてください
+        const gasUrl = 'https://script.google.com/macros/s/AKfycby1on5YAqqdOqefHhBtZiZF6z4Xz3xiyCsnFKafdxY9VAFZ_tIyE_MAdW95um82JwiF2A/exec';
+        if(gasUrl !== 'https://script.google.com/macros/s/AKfycby1on5YAqqdOqefHhBtZiZF6z4Xz3xiyCsnFKafdxY9VAFZ_tIyE_MAdW95um82JwiF2A/exec') {
+            fetch(gasUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: userName, job: finalJobName })
+            });
+        }
+
         document.getElementById('btn-share').onclick = () => {
-            const text = encodeURIComponent(`【M男転生診断結果】\n私のジョブは「${finalJobName}」でした！\n女神に診断されて女勇者にイかされてきます。\n#M男転生診断 #異世界転生`);
+            const text = encodeURIComponent(`【M男転生診断結果】\n私のジョブは「${finalJobName}」でした！\n女勇者にイかされてきます。\n#M男転生診断 #異世界転生`);
             window.open(`https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(window.location.href)}`, '_blank');
         };
     }
