@@ -13,30 +13,18 @@
         #truck { position: absolute; font-size: 8rem; right: -250px; transition: none; z-index: 10001; }
         #accident-txt { color: #000; font-size: 2rem; font-weight: bold; z-index: 10000; }
 
-        /* 1. タイトルロゴを一番上へ */
-        .logo-container { margin-bottom: 15px; }
-        .logo-img { width: 100%; max-width: 320px; height: auto; }
-
-        /* 2. 女神画像をその下へ */
+        .logo-img { width: 100%; max-width: 320px; margin-bottom: 15px; }
         .goddess-img { width: 100%; height: auto; border: 2px solid #fff; background: #333; display: block; margin: 0 auto; }
         
-        /* 3. 吹き出し（ツノを上向きに固定） */
         .msg-bubble { 
             background: #fff; color: #000; padding: 15px; border-radius: 10px; 
-            margin-top: 25px; /* 女神画像との間隔 */
-            margin-bottom: 20px; 
+            margin-top: 25px; margin-bottom: 20px; 
             font-weight: bold; font-size: 0.85rem; line-height: 1.4; 
             position: relative; min-height: 3em; display: flex; align-items: center; justify-content: center; 
         }
-
-        /* ★ここが重要：吹き出しの三角を「上」に出す設定 */
         .msg-bubble::after { 
-            content: ""; 
-            position: absolute; 
-            top: -15px; /* 上側に配置 */
-            left: 30px; 
-            border-width: 0 12px 15px 12px; /* 下向きの三角形を作ることで、吹き出しのツノに見せる */
-            border-style: solid; 
+            content: ""; position: absolute; top: -15px; left: 30px; 
+            border-width: 0 12px 15px 12px; border-style: solid; 
             border-color: transparent transparent #ffffff transparent; 
         }
 
@@ -59,12 +47,8 @@
 </div>
 
 <div id="game-box">
-    <div class="logo-container">
-        <img src="logo.png" class="logo-img" alt="M男転生 ロゴ">
-    </div>
-
+    <img src="logo.png" class="logo-img" alt="M男転生 ロゴ">
     <img src="megami.jpg" id="goddess-image" class="goddess-img" alt="女神画像">
-
     <div id="goddess-comment" class="msg-bubble">「あら、不運な魂さん。異世界へ行く前に、アンタの『使い道』を決めましょうか？」</div>
 
     <div id="start-screen">
@@ -87,7 +71,6 @@
 </div>
 
 <script>
-    // ロジックはそのまま維持
     const commentBox = document.getElementById('goddess-comment');
     let finalJobName = "";
 
@@ -97,8 +80,9 @@
         const txt = document.getElementById('accident-txt');
         scene.style.display = 'flex';
         let pos = -250;
+        // 速度を5に落としてゆっくりに
         const drive = setInterval(() => {
-            pos += 45;
+            pos += 5;
             truck.style.right = pos + 'px';
             if (pos > window.innerWidth / 2 - 50) {
                 txt.innerText = "ガシャーーーーン！！";
@@ -106,40 +90,40 @@
             }
             if (pos > window.innerWidth + 300) { clearInterval(drive); }
         }, 10);
+        // 待ち時間を3.5秒に延長
         setTimeout(() => {
             scene.style.display = 'none';
             document.getElementById('start-screen').classList.add('hidden');
             document.getElementById('quiz').classList.remove('hidden');
             commentBox.innerText = "「ひどい事故ねぇ。でもそのおかげでアンタ、才能が開花しそうよ？」";
             showQ();
-        }, 1500);
+        }, 3500);
     }
 
     const jobs = {
-        warrior: { n: "盾専任ナイト", s: "ダメージ快感変換", i: "鉄より重いフルプレート", c: "女勇者の前に立ち、攻撃をその身で受けるのが生きがいね。まさに鉄壁のMよ！" },
-        monk: { n: "苦行の修行僧", s: "不屈の精神（ドM）", i: "正座用のお盆", c: "厳しい特訓をご褒美だと思ってるわね。そのストイックさ、変態の域よ。" },
-        priest: { n: "専属パシリ", s: "献身的パシリ", i: "勇者の家紋入りエプロン", c: "誰かに尽くしてボロボロになるのが幸せなのね。最高の雑用係として頑張りなさい。" },
-        summoner: { n: "女勇者のペット", s: "完全帰依の鎖", i: "高級な首輪", c: "もはや人間扱いですらないわね。首輪を引かれるのがお似合いよ。" },
-        jester: { n: "晒し道化師", s: "羞恥マスター", i: "勝手に鳴る鈴", c: "笑われて、恥をかいて、みんなにオモチャにされる。アンタの天職ね！" },
-        mage: { n: "赤面魔導士", s: "羞恥の共鳴", i: "サイン入り教本", c: "いじられるとすぐ顔真っ赤にするわね。女勇者もいじりがいがあるって喜ぶわよ。" },
-        sage: { n: "屈服の賢者", s: "敗北の叡智", i: "屈服の白旗", c: "知性がある分、プライドをへし折られた時の落差がたまらないんでしょ？" },
-        thief: { n: "お仕置き待ち盗賊", s: "確信犯のミス", i: "自縄自縛のロープ", c: "わざと捕まってお仕置きされるのを待ってるなんて……確信犯ね。" },
-        assassin: { n: "放置暗殺者", s: "孤独の極致", i: "マント", c: "無視されたり放置されたりするのが快感なんて。影の薄さを楽しみなさい。" },
-        hero: { n: "替え玉勇者", s: "無茶振り受容", i: "重すぎる義務感", c: "理不尽な重圧をすべて背負わされて、健気に耐える姿。涙を誘わんね。" }
+        alchemist: { n: "実験体錬金術師", s: "劇薬耐性(快感)", i: "怪しい薬の試験管", c: "女勇者の作る怪しいポーションを喜んで飲み干す姿……立派な変態ね。" },
+        dog: { n: "勇者のペット（犬）", s: "お手・おかわり", i: "トゲ付きの首輪", c: "人間をやめて犬として生きる道を選んだのね。四つん這いで這いつくばりなさい！" },
+        floor: { n: "高機能な床", s: "踏まれ心地の追求", i: "高級なワックス", c: "もはや生物ですらないわ。女勇者に踏まれるためだけの「床」がお似合いよ。" },
+        knight: { n: "屈辱の騎士", s: "プライド崩壊", i: "ボロボロの家紋旗", c: "高潔な騎士が女勇者に完敗して跪く……そのギャップがたまらないんでしょ？" },
+        mage: { n: "魔力供給用の杖", s: "搾取される魔力", i: "魔力を吸い取る魔石", c: "自分は魔法を放てず、ただ女勇者に魔力を吸い取られるだけの道具ね。" },
+        slime: { n: "お掃除スライム", s: "全身粘液", i: "勇者の靴磨きセット", c: "踏まれても斬られても喜ぶスライム。女勇者の足元の汚れを舐めとってなさい。" },
+        shield: { n: "人間盾", s: "ダメージ全吸収", i: "ボコボコの鉄板", c: "攻撃を避けるなんて言語道断。すべての苦痛を正面から受け止めるのがアンタの運命よ。" },
+        slave: { n: "終身刑の奴隷", s: "絶対服従", i: "外れない鉄枷", c: "名前すら奪われて、ただの番号で呼ばれる快感。一生彼女の所有物ね。" }
     };
 
-    const goddessQuotes = ["「へぇー、そんなのが好きなんだ？」「素直でよろしいわ！」「アンタ、なかなかの逸材ね……」「それ、女勇者が聞いたら喜ぶわよ？」「ふふっ、次はどう答えるのかしら？」"];
+    const goddessQuotes = ["「いい反応ね、もっと見せて？」「アンタ、本当に救えないわね(笑)」「あら、それはただの変態じゃない？」「女勇者もきっと喜ぶわよ。」「アンタの性癖、透けて見えてるわよ？」"];
+    
     const qs = [
-        { q: "女勇者から「今日の荷物、全部一人で持って」と言われたら？", a: [{t:"「お任せください！」と嬉々として背負う",j:"priest"}, {t:"これは修行だと思い耐える",j:"monk"}, {t:"命令の重さにゾクゾクする",j:"summoner"}, {t:"無様な姿を見せたくなる",j:"jester"}] },
-        { q: "女勇者に「あんた、囮になって盾になりなさいよ」と言われたら？", a: [{t:"「彼女の盾になろう」と突進する",j:"warrior"}, {t:"彼女のためにボロボロになる機会に震える",j:"hero"}, {t:"情けなく叫びながら喜ぶ",j:"jester"}, {t:"見捨てられる恐怖を楽しむ",j:"assassin"}] },
-        { q: "女勇者に「本当に使えない奴ね」と罵倒されたら？", a: [{t:"羞恥心で顔を真っ赤にする",j:"mage"}, {t:"その視線に完敗し、跪く",j:"sage"}, {t:"もっと罵ってと視線で訴える",j:"thief"}, {t:"所有物として認められた気がして安心",j:"summoner"}] },
-        { q: "勇者のミスで、あなたが代わりに罰を受けることになったら？", a: [{t:"彼女の泥を被れる幸せを噛みしめる",j:"hero"}, {t:"罰の厳しさを想像して、内心で待望する",j:"monk"}, {t:"不遇な自分を憐れんで悦ぶ",j:"assassin"}, {t:"「ごめんね」と言われるのを期待する",j:"mage"}] },
-        { q: "魔法で体が動かなくなり、女勇者にされるがままの状態になったら？", a: [{t:"彼女の意志に完全に身を委ねる",j:"summoner"}, {t:"何をされるか分からないスリルに浸る",j:"thief"}, {t:"無様な姿を見せている自分を想像する",j:"jester"}, {t:"この状況での彼女の動きを観察する",j:"sage"}] },
-        { q: "女勇者に「あんた、一生私のパシリなさい」と言われたら？", a: [{t:"永続的な服従に深い幸福を覚える",j:"priest"}, {t:"自由を奪われることに最高の安心を感じる",j:"summoner"}, {t:"一生苦労する運命を受け入れる",j:"hero"}, {t:"たまに叱ってくれるなら本望",j:"jester"}] },
-        { q: "宿屋で勇者はベッド、あなたは「床で寝ろ」と言われたら？", a: [{t:"格差を明確にされたことに落ち着く",j:"summoner"}, {t:"床の硬さを楽しむ修行に入る",j:"monk"}, {t:"床の匂いを嗅ぎながら寝る",j:"jester"}, {t:"見下ろされている感覚に浸る",j:"warrior"}] },
-        { q: "勇者に正論で徹底的に論破されたら？", a: [{t:"知的な敗北感に酔いしれる",j:"sage"}, {t:"言い返せなくなって顔を赤くする",j:"mage"}, {t:"彼女の支配的なオーラに崇拝を抱く",j:"summoner"}, {t:"悔しさを糧にさらに尽くしたくなる",j:"priest"}] },
-        { q: "いたずらで「くすぐりの刑」に処されたら？", a: [{t:"涙目で必死に懇願しながら内心喜ぶ",j:"thief"}, {t:"無様にのたうち回る姿を彼女に見せる",j:"jester"}, {t:"声を殺して耐える姿を評価してほしい",j:"monk"}, {t:"されるがままの無力感を堪能する",j:"priest"}] },
-        { q: "あなたにとって「究極の転生後ライフ」とは？", a: [{t:"女勇者に管理され、飼い慣らされる",j:"summoner"}, {t:"彼女に弄ばれ、恥をかき続ける",j:"jester"}, {t:"彼女の重荷を背負い、ボロボロになる",j:"hero"}, {t:"彼女に永遠にパシられる",j:"priest"}] }
+        { q: "女勇者に「あんた、今日から人間禁止。犬になりなさい」と言われたら？", a: [{t: "「ワン！」と即座に吠える", j: "dog"}, {t: "四つん這いで靴を舐める", j: "slime"}, {t: "首輪を要求する", j: "slave"}, {t: "屈辱に震えながら従う", j: "knight"}] },
+        { q: "冒険の休憩中、女勇者が椅子に座ろうとしています。どうする？", a: [{t: "自分が床になって踏んでもらう", j: "floor"}, {t: "足台として跪く", j: "knight"}, {t: "彼女の足をマッサージする奴隷になる", j: "slave"}, {t: "お掃除スライムとして尻の下を掃除する", j: "slime"}] },
+        { q: "新しい薬の実験台が必要だと言われたら？", a: [{t: "喜んで毒薬でも飲み干す", j: "alchemist"}, {t: "体が変化して異形になるのを期待する", j: "slime"}, {t: "彼女に管理されるなら何でもいい", j: "slave"}, {t: "騎士の誇りを捨てて薬を乞う", j: "knight"}] },
+        { q: "敵の強力な魔法が迫っています。あなたの役割は？", a: [{t: "無言で肉体の盾になる", j: "shield"}, {t: "「盾になれて幸せ」と叫びながら突っ込む", j: "dog"}, {t: "自分の魔力を彼女に全部吸わせる", j: "mage"}, {t: "地面に伏せて彼女の足場を固める", j: "floor"}] },
+        { q: "女勇者が魔力不足です。どうやって助ける？", a: [{t: "杖として全身から魔力を搾り取らせる", j: "mage"}, {t: "怪しいポーションを錬成して自分も飲む", j: "alchemist"}, {t: "跪いて力を分け与える儀式（お仕置き）を受ける", j: "knight"}, {t: "ただの道具として消費される", j: "shield"}] },
+        { q: "「あんた、私の靴の裏でも掃除してなさい」と言われたら？", a: [{t: "スライム状になって綺麗に舐めとる", j: "slime"}, {t: "床として汚れをすべて引き受ける", j: "floor"}, {t: "「ご褒美ありがとうございます！」", j: "dog"}, {t: "奴隷として黙々と磨き上げる", j: "slave"}] },
+        { q: "街の人に、女勇者のペットとして紹介されたら？", a: [{t: "尻尾を振るフリをして喜ぶ", j: "dog"}, {t: "恥ずかしさで顔を真っ赤にする", j: "mage"}, {t: "当然の権利だと誇らしく思う", j: "slave"}, {t: "騎士としての名前を捨て去る", j: "knight"}] },
+        { q: "あなたが一番「自分は道具だ」と感じる瞬間は？", a: [{t: "盾としてボコボコに叩かれている時", j: "shield"}, {t: "床として踏みつけられている時", j: "floor"}, {t: "錬金術の材料として扱われる時", j: "alchemist"}, {t: "魔法を放つためのただの媒体になる時", j: "mage"}] },
+        { q: "一生、鉄枷を外さないと言われたら？", a: [{t: "永遠の束縛に歓喜する", j: "slave"}, {t: "彼女の所有物である証として愛でる", j: "dog"}, {t: "重みで動けない自分に興奮する", j: "shield"}, {t: "屈服した騎士の証として受け入れる", j: "knight"}] },
+        { q: "最後に選ぶ、あなたの「形」は？", a: [{t: "自我のない無機物（床・盾）", j: "floor"}, {t: "言葉を失った獣や魔物（犬・スライム）", j: "dog"}, {t: "意思を搾取される道具（魔法使い・錬金術師）", j: "mage"}, {t: "ただ従うだけの人間（騎士・奴隷）", j: "slave"}] }
     ];
 
     let currentQ = 0;
@@ -157,8 +141,7 @@
                 btn.innerText = ans.t;
                 btn.onclick = () => { 
                     scores[ans.j]++; currentQ++; 
-                    const quotes = goddessQuotes[0].split('」');
-                    commentBox.innerText = quotes[Math.floor(Math.random()*(quotes.length-1))] + '」';
+                    commentBox.innerText = goddessQuotes[Math.floor(Math.random()*goddessQuotes.length)];
                     showQ(); 
                 };
                 div.appendChild(btn);
