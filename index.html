@@ -63,7 +63,7 @@
     <div id="goddess-wrap" class="goddess-content">
         <img src="logo.png" class="logo-img" alt="M男転生 ロゴ">
         <img src="megami.jpg" id="goddess-image" class="goddess-img" alt="女神画像">
-        <div id="goddess-comment" class="msg-bubble">「あら、不運な魂さん。異世界へ行く前に、アンタの『使い道』を決めましょうか？」</div>
+        <div id="goddess-comment" class="msg-bubble">ここに女神のセリフが入ります</div>
     </div>
 
     <div id="start-screen">
@@ -102,7 +102,7 @@
     let finalJobName = "";
     let userName = "";
 
-    // --- ノベル設定（名前を埋め込めるように動的生成） ---
+    // ノベル設定
     const getScenario = (name) => [
         `俺の名前は、${name}。`,
         "ごく普通の、どこにでもある平凡な毎日を送る男だ。",
@@ -117,8 +117,7 @@
 
     function startNovel() {
         userName = document.getElementById('user-name').value || "名無し";
-        currentScenario = getScenario(userName); // シナリオに名前を流し込む
-        
+        currentScenario = getScenario(userName);
         document.getElementById('start-screen').classList.add('hidden');
         document.getElementById('novel-screen').classList.remove('hidden');
         showNextSentence();
@@ -135,14 +134,14 @@
 
     function nextNovel() { showNextSentence(); }
 
-    // スキップ機能：全演出を飛ばして即座に女神とクイズへ
+    // スキップ機能
     function skipToQuiz() {
         userName = document.getElementById('user-name').value || "名無し";
         document.getElementById('novel-screen').classList.add('hidden');
         document.getElementById('start-screen').classList.add('hidden');
         goddessWrap.classList.add('goddess-visible');
         document.getElementById('quiz').classList.remove('hidden');
-        commentBox.innerText = `「せっかちな魂ね、${userName}。早速アンタの素質を見せてもらうわよ？」`;
+        commentBox.innerText = `「ひどい事故だったわね、${userName}。最近地球で人気な異世界転生モノ？のせいで転生者が絶えないの。悪いけどM男枠しか空いてないわ」`;
         showQ();
     }
 
@@ -176,7 +175,8 @@
                     scene.style.display = 'none';
                     goddessWrap.classList.add('goddess-visible');
                     document.getElementById('quiz').classList.remove('hidden');
-                    commentBox.innerText = `「ひどい事故ね、${userName}。でもそのおかげでアンタ、才能が開花しそうよ？」`;
+                    // ★ご要望のセリフに変更
+                    commentBox.innerText = `「ひどい事故だったわね、${userName}。最近地球で人気な異世界転生モノ？のせいで転生者が絶えないの。悪いけどM男枠しか空いてないわ」`;
                     showQ();
                 }, 1000);
             }, 1000);
@@ -250,7 +250,6 @@
             <span style="color:var(--gold)">女勇者との相性：絶頂級</span>
         `;
 
-        // データベース送信
         const gasUrl = 'https://script.google.com/macros/s/AKfycbyW8CRcuMZ1aIZgCORx7k0CQPc0f25awVmtC_fkeyfLmiFwlzlXxetA4OgmZqUFMo7hqA/exec';
         fetch(gasUrl, {
             method: 'POST',
