@@ -6,24 +6,45 @@
     <title>M男転生～女神にM男診断されて女勇者にイかされる～</title>
     <style>
         :root { --primary: #9d50bb; --bg: #0f0c29; --text: #ffffff; --gold: #ffeb3b; --x-color: #000000; }
-        body { background: var(--bg); color: var(--text); font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; overflow: hidden; }
+        body { background: var(--bg); color: var(--text); font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; overflow-y: auto; padding: 20px 0; }
         #game-box { width: 92%; max-width: 480px; background: #1a1a2e; padding: 25px; border: 4px solid var(--primary); text-align: center; box-shadow: 10px 10px 0px #000; position: relative; }
         
         #accident-scene { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 9999; display: none; align-items: center; justify-content: center; }
         #truck { position: absolute; font-size: 8rem; right: -250px; transition: none; z-index: 10001; }
         #accident-txt { color: #000; font-size: 2rem; font-weight: bold; z-index: 10000; }
 
-        .goddess-img { width: 100%; height: 200px; object-fit: cover; border: 2px solid #fff; margin-bottom: 15px; background: #333; }
-        .msg-bubble { background: #fff; color: #000; padding: 15px; border-radius: 10px; margin-bottom: 20px; font-weight: bold; font-size: 0.85rem; line-height: 1.4; position: relative; min-height: 3em; display: flex; align-items: center; justify-content: center; }
-        .msg-bubble::after { content: ""; position: absolute; bottom: -10px; left: 20px; border-width: 10px 10px 0; border-style: solid; border-color: #fff transparent; }
+        /* 1. タイトルロゴを一番上へ */
+        .logo-container { margin-bottom: 15px; }
+        .logo-img { width: 100%; max-width: 320px; height: auto; }
+
+        /* 2. 女神画像をその下へ */
+        .goddess-img { width: 100%; height: auto; border: 2px solid #fff; background: #333; display: block; margin: 0 auto; }
+        
+        /* 3. 吹き出し（ツノを上向きに固定） */
+        .msg-bubble { 
+            background: #fff; color: #000; padding: 15px; border-radius: 10px; 
+            margin-top: 25px; /* 女神画像との間隔 */
+            margin-bottom: 20px; 
+            font-weight: bold; font-size: 0.85rem; line-height: 1.4; 
+            position: relative; min-height: 3em; display: flex; align-items: center; justify-content: center; 
+        }
+
+        /* ★ここが重要：吹き出しの三角を「上」に出す設定 */
+        .msg-bubble::after { 
+            content: ""; 
+            position: absolute; 
+            top: -15px; /* 上側に配置 */
+            left: 30px; 
+            border-width: 0 12px 15px 12px; /* 下向きの三角形を作ることで、吹き出しのツノに見せる */
+            border-style: solid; 
+            border-color: transparent transparent #ffffff transparent; 
+        }
 
         .choices { display: grid; gap: 10px; }
-        button { background: #eee; border: none; padding: 12px; font-weight: bold; cursor: pointer; box-shadow: 4px 4px 0px #666; font-size: 0.9rem; color: #000; transition: 0.1s; }
+        button { background: #eee; border: none; padding: 15px; font-weight: bold; cursor: pointer; box-shadow: 4px 4px 0px #666; font-size: 1rem; color: #000; transition: 0.1s; width: 100%; }
         button:hover { background: var(--gold); transform: translate(2px, 2px); box-shadow: 2px 2px 0px #666; }
         
-        /* シェアボタン用 */
         .share-btn { background: var(--x-color) !important; color: #fff !important; margin-top: 10px; border: 1px solid #444 !important; }
-
         .hidden { display: none; }
         .job-res { font-size: 2.2rem; color: var(--gold); text-shadow: 2px 2px #000; margin: 10px 0; font-weight: bold; }
         .stats { text-align: left; background: #000; padding: 12px; border: 1px dashed var(--gold); font-size: 0.8rem; line-height: 1.5; }
@@ -38,12 +59,16 @@
 </div>
 
 <div id="game-box">
-    <img src="megami.jpg" id="goddess-image" class="goddess-img" alt="女神">
+    <div class="logo-container">
+        <img src="logo.png" class="logo-img" alt="M男転生 ロゴ">
+    </div>
+
+    <img src="megami.jpg" id="goddess-image" class="goddess-img" alt="女神画像">
+
     <div id="goddess-comment" class="msg-bubble">「あら、不運な魂さん。異世界へ行く前に、アンタの『使い道』を決めましょうか？」</div>
 
     <div id="start-screen">
-        <h1 style="color: var(--gold); font-size: 1.2rem; margin: 10px 0;">M男転生<br><span style="font-size: 0.8rem;">～女神にM男診断されて女勇者にイかされる～</span></h1>
-        <button onclick="startAccident()" style="width: 100%;">異世界へ転生する</button>
+        <button onclick="startAccident()">異世界へ転生する</button>
     </div>
 
     <div id="quiz" class="hidden">
@@ -56,12 +81,13 @@
         <div style="font-weight: bold; font-size: 0.8rem;">鑑定結果：アンタのジョブは…</div>
         <div class="job-res" id="job-name"></div>
         <div class="stats" id="detail"></div>
-        <button id="btn-share" class="share-btn" style="width: 100%;">結果をX(Twitter)でシェア</button>
-        <button onclick="location.reload()" style="margin-top:20px; width: 100%; background: #999;">もう一度最初から</button>
+        <button id="btn-share" class="share-btn">結果をX(Twitter)でシェア</button>
+        <button onclick="location.reload()" style="margin-top:20px; background: #999;">もう一度最初から</button>
     </div>
 </div>
 
 <script>
+    // ロジックはそのまま維持
     const commentBox = document.getElementById('goddess-comment');
     let finalJobName = "";
 
@@ -70,10 +96,9 @@
         const truck = document.getElementById('truck');
         const txt = document.getElementById('accident-txt');
         scene.style.display = 'flex';
-        
         let pos = -250;
         const drive = setInterval(() => {
-            pos += 40;
+            pos += 45;
             truck.style.right = pos + 'px';
             if (pos > window.innerWidth / 2 - 50) {
                 txt.innerText = "ガシャーーーーン！！";
@@ -81,7 +106,6 @@
             }
             if (pos > window.innerWidth + 300) { clearInterval(drive); }
         }, 10);
-
         setTimeout(() => {
             scene.style.display = 'none';
             document.getElementById('start-screen').classList.add('hidden');
@@ -101,15 +125,12 @@
         sage: { n: "屈服の賢者", s: "敗北の叡智", i: "屈服の白旗", c: "知性がある分、プライドをへし折られた時の落差がたまらないんでしょ？" },
         thief: { n: "お仕置き待ち盗賊", s: "確信犯のミス", i: "自縄自縛のロープ", c: "わざと捕まってお仕置きされるのを待ってるなんて……確信犯ね。" },
         assassin: { n: "放置暗殺者", s: "孤独の極致", i: "マント", c: "無視されたり放置されたりするのが快感なんて。影の薄さを楽しみなさい。" },
-        hero: { n: "替え玉勇者", s: "無茶振り受容", i: "重すぎる義務感", c: "理不尽な重圧をすべて背負わされて、健気に耐える姿。涙を誘うわね。" }
+        hero: { n: "替え玉勇者", s: "無茶振り受容", i: "重すぎる義務感", c: "理不尽な重圧をすべて背負わされて、健気に耐える姿。涙を誘わんね。" }
     };
 
-    const goddessQuotes = [
-        "「へぇー、そんなのが好きなんだ？」「素直でよろしいわ！」「アンタ、なかなかの逸材ね……」「それ、女勇者が聞いたら喜ぶわよ？」「ふふっ、次はどう答えるのかしら？」"
-    ];
-
+    const goddessQuotes = ["「へぇー、そんなのが好きなんだ？」「素直でよろしいわ！」「アンタ、なかなかの逸材ね……」「それ、女勇者が聞いたら喜ぶわよ？」「ふふっ、次はどう答えるのかしら？」"];
     const qs = [
-        { q: "女勇者から「今日の荷物、全部一人で持って」と言われたら？", a: [{t:"「お任せください！」と嬉々として背負う",j:"priest"}, {t:"これは下半身の修行だと思い耐える",j:"monk"}, {t:"命令の重さにゾクゾクする",j:"summoner"}, {t:"よろめく無様な姿を見せたくなる",j:"jester"}] },
+        { q: "女勇者から「今日の荷物、全部一人で持って」と言われたら？", a: [{t:"「お任せください！」と嬉々として背負う",j:"priest"}, {t:"これは修行だと思い耐える",j:"monk"}, {t:"命令の重さにゾクゾクする",j:"summoner"}, {t:"無様な姿を見せたくなる",j:"jester"}] },
         { q: "女勇者に「あんた、囮になって盾になりなさいよ」と言われたら？", a: [{t:"「彼女の盾になろう」と突進する",j:"warrior"}, {t:"彼女のためにボロボロになる機会に震える",j:"hero"}, {t:"情けなく叫びながら喜ぶ",j:"jester"}, {t:"見捨てられる恐怖を楽しむ",j:"assassin"}] },
         { q: "女勇者に「本当に使えない奴ね」と罵倒されたら？", a: [{t:"羞恥心で顔を真っ赤にする",j:"mage"}, {t:"その視線に完敗し、跪く",j:"sage"}, {t:"もっと罵ってと視線で訴える",j:"thief"}, {t:"所有物として認められた気がして安心",j:"summoner"}] },
         { q: "勇者のミスで、あなたが代わりに罰を受けることになったら？", a: [{t:"彼女の泥を被れる幸せを噛みしめる",j:"hero"}, {t:"罰の厳しさを想像して、内心で待望する",j:"monk"}, {t:"不遇な自分を憐れんで悦ぶ",j:"assassin"}, {t:"「ごめんね」と言われるのを期待する",j:"mage"}] },
@@ -117,7 +138,7 @@
         { q: "女勇者に「あんた、一生私のパシリなさい」と言われたら？", a: [{t:"永続的な服従に深い幸福を覚える",j:"priest"}, {t:"自由を奪われることに最高の安心を感じる",j:"summoner"}, {t:"一生苦労する運命を受け入れる",j:"hero"}, {t:"たまに叱ってくれるなら本望",j:"jester"}] },
         { q: "宿屋で勇者はベッド、あなたは「床で寝ろ」と言われたら？", a: [{t:"格差を明確にされたことに落ち着く",j:"summoner"}, {t:"床の硬さを楽しむ修行に入る",j:"monk"}, {t:"床の匂いを嗅ぎながら寝る",j:"jester"}, {t:"見下ろされている感覚に浸る",j:"warrior"}] },
         { q: "勇者に正論で徹底的に論破されたら？", a: [{t:"知的な敗北感に酔いしれる",j:"sage"}, {t:"言い返せなくなって顔を赤くする",j:"mage"}, {t:"彼女の支配的なオーラに崇拝を抱く",j:"summoner"}, {t:"悔しさを糧にさらに尽くしたくなる",j:"priest"}] },
-        { q: "いたずらで「くすぐりの刑」に処されたら？", a: [{t:"涙目で必死に懇願しながら内心喜ぶ",j:"thief"}, {t:"無様にのたうち回る姿を彼女に見せる",j:"jester"}, {t:"必死に声を殺して耐える姿を評価してほしい",j:"monk"}, {t:"されるがままの無力感を堪能する",j:"priest"}] },
+        { q: "いたずらで「くすぐりの刑」に処されたら？", a: [{t:"涙目で必死に懇願しながら内心喜ぶ",j:"thief"}, {t:"無様にのたうち回る姿を彼女に見せる",j:"jester"}, {t:"声を殺して耐える姿を評価してほしい",j:"monk"}, {t:"されるがままの無力感を堪能する",j:"priest"}] },
         { q: "あなたにとって「究極の転生後ライフ」とは？", a: [{t:"女勇者に管理され、飼い慣らされる",j:"summoner"}, {t:"彼女に弄ばれ、恥をかき続ける",j:"jester"}, {t:"彼女の重荷を背負い、ボロボロになる",j:"hero"}, {t:"彼女に永遠にパシられる",j:"priest"}] }
     ];
 
@@ -135,17 +156,14 @@
                 const btn = document.createElement('button');
                 btn.innerText = ans.t;
                 btn.onclick = () => { 
-                    scores[ans.j]++; 
-                    currentQ++; 
+                    scores[ans.j]++; currentQ++; 
                     const quotes = goddessQuotes[0].split('」');
                     commentBox.innerText = quotes[Math.floor(Math.random()*(quotes.length-1))] + '」';
                     showQ(); 
                 };
                 div.appendChild(btn);
             });
-        } else {
-            showResult();
-        }
+        } else { showResult(); }
     }
 
     function showResult() {
@@ -158,16 +176,12 @@
         commentBox.innerText = "「判定が出たわよ！アンタにぴったりの無様な役職はこれ！」";
         document.getElementById('detail').innerHTML = `
             <strong>女神の評価：</strong> ${job.c}<br><br>
-            <strong>固有能力：</strong> ${job.s}<br>
-            <strong>初期装備：</strong> ${job.i}<br><br>
+            <strong>能力：</strong> ${job.s} / <strong>装備：</strong> ${job.i}<br><br>
             <span style="color:var(--gold)">女勇者との相性：絶頂級</span>
         `;
-
-        // シェア機能の設定
         document.getElementById('btn-share').onclick = () => {
-            const text = encodeURIComponent(`【M男転生診断結果】\n私のジョブは「${finalJobName}」でした！\n女神にM男診断されて女勇者にイかされてきます。\n#M男転生診断 #異世界転生`);
-            const url = encodeURIComponent(window.location.href);
-            window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
+            const text = encodeURIComponent(`【M男転生診断結果】\n私のジョブは「${finalJobName}」でした！\n女神に診断されて女勇者にイかされてきます。\n#M男転生診断 #異世界転生`);
+            window.open(`https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(window.location.href)}`, '_blank');
         };
     }
 </script>
