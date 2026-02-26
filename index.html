@@ -1,41 +1,36 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>M男転生～女神にM男診断されて女勇者にイかされる～</title>
-    <style>
-        :root { --primary: #9d50bb; --bg: #0f0c29; --text: #ffffff; --gold: #ffeb3b; }
-        body { background: var(--bg); color: var(--text); font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px 0; }
-        #game-box { width: 92%; max-width: 480px; background: #1a1a2e; padding: 25px; border: 4px solid var(--primary); text-align: center; box-shadow: 10px 10px 0px #000; position: relative; }
+function startAccident() {
+        const scene = document.getElementById('accident-scene');
+        const truck = document.getElementById('truck');
+        const txt = document.getElementById('accident-txt');
         
-        /* ロゴ・画像・吹き出しの順序 */
-        .logo-img { width: 100%; max-width: 320px; margin-bottom: 15px; }
-        .goddess-img { width: 100%; height: auto; border: 2px solid #fff; display: block; margin: 0 auto; }
+        scene.style.display = 'flex';
+        scene.style.background = "#fff"; // 背景を白に戻す
+        txt.innerText = "あ！危ない！！";
         
-        .msg-bubble { 
-            background: #fff; color: #000; padding: 15px; border-radius: 10px; margin-top: 25px; margin-bottom: 20px;
-            font-weight: bold; font-size: 0.85rem; position: relative; display: flex; align-items: center; justify-content: center; 
-        }
-        /* ツノを上向きにする設定 */
-        .msg-bubble::after { 
-            content: ""; position: absolute; top: -15px; left: 30px; 
-            border-width: 0 12px 15px 12px; border-style: solid; border-color: transparent transparent #ffffff transparent; 
-        }
+        let pos = -250;
+        // 速度を 45 から 5 に変更（数字が小さいほどゆっくりになります）
+        const drive = setInterval(() => {
+            pos += 5; 
+            truck.style.right = pos + 'px';
+            
+            // 画面中央付近で衝突
+            if (pos > window.innerWidth / 2 - 100) {
+                txt.innerText = "ガシャーーーーン！！";
+                scene.style.background = "red"; // 衝撃で赤く
+            }
+            
+            // 画面外に消えたら停止
+            if (pos > window.innerWidth + 300) { 
+                clearInterval(drive); 
+            }
+        }, 10);
 
-        .hidden { display: none; }
-        button { background: #eee; border: none; padding: 15px; font-weight: bold; cursor: pointer; box-shadow: 4px 4px 0px #666; font-size: 1rem; width: 100%; }
-        button:hover { background: var(--gold); }
-    </style>
-</head>
-<body>
-<div id="game-box">
-    <img src="logo.png" class="logo-img" alt="M男転生 ロゴ">
-    <img src="megami.jpg" class="goddess-img" alt="女神">
-    <div id="goddess-comment" class="msg-bubble">「あら、不運な魂さん。異世界へ行く前に、アンタの『使い道』を決めましょうか？」</div>
-    <div id="start-screen">
-        <button onclick="alert('診断開始！')">異世界へ転生する</button>
-    </div>
-</div>
-</body>
-</html>
+        // トラックが通り過ぎるまで待ってからクイズ画面へ（時間を 1500ms から 3500ms に延長）
+        setTimeout(() => {
+            scene.style.display = 'none';
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('quiz').classList.remove('hidden');
+            commentBox.innerText = "「ひどい事故ねぇ。でもそのおかげでアンタ、才能が開花しそうよ？」";
+            showQ();
+        }, 3500);
+    }
