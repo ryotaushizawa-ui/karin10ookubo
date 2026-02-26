@@ -77,7 +77,7 @@
         <div style="margin-top: 20px;">
             <button onclick="nextNovel()" style="width: auto; padding: 10px 40px;">次へ</button>
             <br>
-            <span class="skip-link" onclick="skipToAccident()">≫ シナリオをスキップして転生する</span>
+            <span class="skip-link" onclick="skipToQuiz()">≫ 全演出をスキップして即診断</span>
         </div>
     </div>
 
@@ -130,7 +130,19 @@
     }
 
     function nextNovel() { showNextSentence(); }
-    function skipToAccident() { startAccident(); }
+
+    // ★今回の修正ポイント：スキップ時は演出を全飛ばし
+    function skipToQuiz() {
+        userName = document.getElementById('user-name').value || "名無し";
+        document.getElementById('novel-screen').classList.add('hidden');
+        document.getElementById('start-screen').classList.add('hidden');
+        
+        // 女神とクイズ画面を即座に表示
+        goddessWrap.classList.add('goddess-visible');
+        document.getElementById('quiz').classList.remove('hidden');
+        commentBox.innerText = `「せっかちな魂ね、${userName}。早速アンタの素質を見せてもらうわよ？」`;
+        showQ();
+    }
 
     // トラック演出
     function startAccident() {
@@ -143,7 +155,7 @@
         scene.style.display = 'flex';
         let pos = -250;
         const drive = setInterval(() => {
-            pos += 12; // ノベル後は少し早めに
+            pos += 12;
             truck.style.right = pos + 'px';
             if (pos > window.innerWidth / 2 - 50) {
                 txt.innerText = "ガシャーーーーン！！";
@@ -176,7 +188,7 @@
         knight: { n: "屈辱の騎士", s: "プライド崩壊", i: "ボロボロの家紋旗", o: "顔面騎乗", c: "高潔な騎士が女勇者に完敗して跪く……そのギャップがたまらないんでしょ？" },
         mage: { n: "魔力供給用の杖", s: "搾取される魔力", i: "魔力を吸い取る魔石", o: "匂いかぎ", c: "自分は魔法を放てず、ただ女勇者に魔力を吸い取られるだけの道具ね。" },
         slime: { n: "お掃除スライム", s: "全身粘液", i: "勇者の靴磨きセット", o: "指アナル", c: "踏まれても斬られても喜ぶスライム。女勇者の足元の汚れを舐めとってなさい。" },
-        shield: { n: "人間盾", s: "ダメージ全吸収", i: "ボボコの鉄板", o: "拘束、乳首舐め", c: "攻撃を避けるなんて言語道断。すべての苦痛を正面から受け止めるのがアンタの運命よ。" },
+        shield: { n: "人間盾", s: "ダメージ全吸収", i: "ボロボロの鉄板", o: "拘束、乳首舐め", c: "攻撃を避けるなんて言語道断。すべての苦痛を正面から受け止めるのがアンタの運命よ。" },
         slave: { n: "終身刑の奴隷", s: "絶対服従", i: "外れない鉄枷", o: "ビンタ、蹴り、目隠し、拘束", c: "名前すら奪われて、ただの番号で呼ばれる快感。一生彼女の所有物ね。" }
     };
 
