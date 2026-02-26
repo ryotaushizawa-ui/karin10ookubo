@@ -36,6 +36,7 @@
         .hidden { display: none; }
         .job-res { font-size: 2.2rem; color: var(--gold); text-shadow: 2px 2px #000; margin: 10px 0; font-weight: bold; }
         .stats { text-align: left; background: #000; padding: 12px; border: 1px dashed var(--gold); font-size: 0.8rem; line-height: 1.5; }
+        .option-box { margin-top: 10px; padding: 8px; background: #222; border-left: 4px solid #f00; color: #ff8888; font-weight: bold; font-size: 0.9rem; }
         #q-num { color: var(--gold); font-size: 0.8rem; font-weight: bold; margin-bottom: 5px; }
     </style>
 </head>
@@ -80,7 +81,6 @@
         const txt = document.getElementById('accident-txt');
         scene.style.display = 'flex';
         let pos = -250;
-        // 速度を5に落としてゆっくりに
         const drive = setInterval(() => {
             pos += 5;
             truck.style.right = pos + 'px';
@@ -90,7 +90,6 @@
             }
             if (pos > window.innerWidth + 300) { clearInterval(drive); }
         }, 10);
-        // 待ち時間を3.5秒に延長
         setTimeout(() => {
             scene.style.display = 'none';
             document.getElementById('start-screen').classList.add('hidden');
@@ -101,17 +100,17 @@
     }
 
     const jobs = {
-        alchemist: { n: "実験体錬金術師", s: "劇薬耐性(快感)", i: "怪しい薬の試験管", c: "女勇者の作る怪しいポーションを喜んで飲み干す姿……立派な変態ね。" },
-        dog: { n: "勇者のペット（犬）", s: "お手・おかわり", i: "トゲ付きの首輪", c: "人間をやめて犬として生きる道を選んだのね。四つん這いで這いつくばりなさい！" },
-        floor: { n: "高機能な床", s: "踏まれ心地の追求", i: "高級なワックス", c: "もはや生物ですらないわ。女勇者に踏まれるためだけの「床」がお似合いよ。" },
-        knight: { n: "屈辱の騎士", s: "プライド崩壊", i: "ボロボロの家紋旗", c: "高潔な騎士が女勇者に完敗して跪く……そのギャップがたまらないんでしょ？" },
-        mage: { n: "魔力供給用の杖", s: "搾取される魔力", i: "魔力を吸い取る魔石", c: "自分は魔法を放てず、ただ女勇者に魔力を吸い取られるだけの道具ね。" },
-        slime: { n: "お掃除スライム", s: "全身粘液", i: "勇者の靴磨きセット", c: "踏まれても斬られても喜ぶスライム。女勇者の足元の汚れを舐めとってなさい。" },
-        shield: { n: "人間盾", s: "ダメージ全吸収", i: "ボコボコの鉄板", c: "攻撃を避けるなんて言語道断。すべての苦痛を正面から受け止めるのがアンタの運命よ。" },
-        slave: { n: "終身刑の奴隷", s: "絶対服従", i: "外れない鉄枷", c: "名前すら奪われて、ただの番号で呼ばれる快感。一生彼女の所有物ね。" }
+        alchemist: { n: "実験体錬金術師", s: "劇薬耐性(快感)", i: "怪しい薬の試験管", o: "ハッピーセット", c: "女勇者の作る怪しいポーションを喜んで飲み干す姿……立派な変態ね。" },
+        dog: { n: "勇者のペット（犬）", s: "お手・おかわり", i: "トゲ付きの首輪", o: "Mセット", c: "人間をやめて犬として生きる道を選んだのね。四つん這いで這いつくばりなさい！" },
+        floor: { n: "高機能な床", s: "踏まれ心地の追求", i: "高級なワックス", o: "踏みつけ", c: "もはや生物ですらないわ。女勇者に踏まれるためだけの「床」がお似合いよ。" },
+        knight: { n: "屈辱の騎士", s: "プライド崩壊", i: "ボロボロの家紋旗", o: "顔面騎乗", c: "高潔な騎士が女勇者に完敗して跪く……そのギャップがたまらないんでしょ？" },
+        mage: { n: "魔力供給用の杖", s: "搾取される魔力", i: "魔力を吸い取る魔石", o: "匂いかぎ", c: "自分は魔法を放てず、ただ女勇者に魔力を吸い取られるだけの道具ね。" },
+        slime: { n: "お掃除スライム", s: "全身粘液", i: "勇者の靴磨きセット", o: "指アナル", c: "踏まれても斬られても喜ぶスライム。女勇者の足元の汚れを舐めとってなさい。" },
+        shield: { n: "人間盾", s: "ダメージ全吸収", i: "ボコボコの鉄板", o: "拘束、乳首舐め", c: "攻撃を避けるなんて言語道断。すべての苦痛を正面から受け止めるのがアンタの運命よ。" },
+        slave: { n: "終身刑の奴隷", s: "絶対服従", i: "外れない鉄枷", o: "ビンタ、蹴り、目隠し、拘束", c: "名前すら奪われて、ただの番号で呼ばれる快感。一生彼女の所有物ね。" }
     };
 
-    const goddessQuotes = ["「いい反応ね、もっと見せて？」「アンタ、本当に救えないわね(笑)」「あら、それはただの変態じゃない？」「女勇者もきっと喜ぶわよ。」「アンタの性癖、透けて見えてるわよ？」"];
+    const goddessQuotes = ["「へぇー、そんなのが好きなんだ？」", "「素直でよろしいわ！」", "「アンタ、なかなかの逸材ね……」", "「それ、女勇者が聞いたら喜ぶわよ？」", "「ふふっ、次はどう答えるのかしら？」"];
     
     const qs = [
         { q: "女勇者に「あんた、今日から人間禁止。犬になりなさい」と言われたら？", a: [{t: "「ワン！」と即座に吠える", j: "dog"}, {t: "四つん這いで靴を舐める", j: "slime"}, {t: "首輪を要求する", j: "slave"}, {t: "屈辱に震えながら従う", j: "knight"}] },
@@ -141,6 +140,7 @@
                 btn.innerText = ans.t;
                 btn.onclick = () => { 
                     scores[ans.j]++; currentQ++; 
+                    // セリフをランダムで1つだけ表示
                     commentBox.innerText = goddessQuotes[Math.floor(Math.random()*goddessQuotes.length)];
                     showQ(); 
                 };
@@ -159,7 +159,8 @@
         commentBox.innerText = "「判定が出たわよ！アンタにぴったりの無様な役職はこれ！」";
         document.getElementById('detail').innerHTML = `
             <strong>女神の評価：</strong> ${job.c}<br><br>
-            <strong>能力：</strong> ${job.s} / <strong>装備：</strong> ${job.i}<br><br>
+            <strong>能力：</strong> ${job.s} / <strong>装備：</strong> ${job.i}<br>
+            <div class="option-box">♥おすすめオプション：${job.o}</div><br>
             <span style="color:var(--gold)">女勇者との相性：絶頂級</span>
         `;
         document.getElementById('btn-share').onclick = () => {
