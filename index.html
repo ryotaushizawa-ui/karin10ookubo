@@ -19,6 +19,10 @@
         #truck { position: absolute; font-size: 8rem; right: -250px; transition: none; z-index: 10001; }
         #accident-txt { color: #000; font-size: 2rem; font-weight: bold; z-index: 10000; }
 
+        /* ノベル画面 */
+        #novel-text { line-height: 1.8; font-size: 1.1rem; min-height: 120px; padding: 20px; display: flex; align-items: center; justify-content: center; }
+        .skip-link { display: inline-block; margin-top: 20px; color: #888; text-decoration: underline; cursor: pointer; font-size: 0.8rem; }
+
         .logo-img { width: 100%; max-width: 320px; margin-bottom: 15px; }
         .goddess-img { width: 100%; height: auto; border: 2px solid #fff; background: #333; display: block; margin: 0 auto; }
         
@@ -34,7 +38,6 @@
             border-color: transparent transparent #ffffff transparent; 
         }
 
-        /* 入力フォーム */
         #user-name { padding: 12px; width: 80%; margin-bottom: 20px; border-radius: 5px; border: 2px solid var(--primary); text-align: center; font-size: 1rem; background: #000; color: #fff; }
 
         .choices { display: grid; gap: 10px; }
@@ -66,7 +69,16 @@
     <div id="start-screen">
         <p style="margin-bottom: 20px; font-size: 0.9rem; color: #aaa;">平凡な日常の終わりは、突然やってくる…</p>
         <input type="text" id="user-name" placeholder="転生前の名前を入力..." maxlength="15">
-        <button onclick="startAccident()">異世界へ転生する</button>
+        <button onclick="startNovel()">異世界へ転生する</button>
+    </div>
+
+    <div id="novel-screen" class="hidden">
+        <div id="novel-text"></div>
+        <div style="margin-top: 20px;">
+            <button onclick="nextNovel()" style="width: auto; padding: 10px 40px;">次へ</button>
+            <br>
+            <span class="skip-link" onclick="skipToAccident()">≫ シナリオをスキップして転生する</span>
+        </div>
     </div>
 
     <div id="quiz" class="hidden">
@@ -90,9 +102,39 @@
     let finalJobName = "";
     let userName = "";
 
+    // ノベル設定
+    const scenario = [
+        "ごく普通の、どこにでもある平凡な一日だった。",
+        "仕事帰りのコンビニ。いつものコーヒー。",
+        "ふと見上げた夜空に、見たこともない色の星が流れた気がした。",
+        "「……ん？」",
+        "背後から、不自然なほどの熱風と、鼓膜を震わせる轟音が迫る。",
+        "振り返ると、そこには光り輝くトラックが――"
+    ];
+    let novelIndex = 0;
+
+    function startNovel() {
+        userName = document.getElementById('user-name').value || "名無し";
+        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('novel-screen').classList.remove('hidden');
+        showNextSentence();
+    }
+
+    function showNextSentence() {
+        if (novelIndex < scenario.length) {
+            document.getElementById('novel-text').innerText = scenario[novelIndex];
+            novelIndex++;
+        } else {
+            startAccident();
+        }
+    }
+
+    function nextNovel() { showNextSentence(); }
+    function skipToAccident() { startAccident(); }
+
     // トラック演出
     function startAccident() {
-        userName = document.getElementById('user-name').value || "名無し";
+        document.getElementById('novel-screen').classList.add('hidden');
         document.getElementById('start-screen').classList.add('hidden');
         const scene = document.getElementById('accident-scene');
         const truck = document.getElementById('truck');
@@ -101,7 +143,7 @@
         scene.style.display = 'flex';
         let pos = -250;
         const drive = setInterval(() => {
-            pos += 5; // ゆっくり
+            pos += 12; // ノベル後は少し早めに
             truck.style.right = pos + 'px';
             if (pos > window.innerWidth / 2 - 50) {
                 txt.innerText = "ガシャーーーーン！！";
@@ -124,10 +166,9 @@
                     showQ();
                 }, 1000);
             }, 1000);
-        }, 3500);
+        }, 3000);
     }
 
-    // ジョブデータ
     const jobs = {
         alchemist: { n: "実験体錬金術師", s: "劇薬耐性(快感)", i: "怪しい薬の試験管", o: "ハッピーセット", c: "女勇者の作る怪しいポーションを喜んで飲み干す姿……立派な変態ね。" },
         dog: { n: "勇者のペット（犬）", s: "お手・おかわり", i: "トゲ付きの首輪", o: "Mセット", c: "人間をやめて犬として生きる道を選んだのね。四つん這いで這いつくばりなさい！" },
@@ -135,13 +176,12 @@
         knight: { n: "屈辱の騎士", s: "プライド崩壊", i: "ボロボロの家紋旗", o: "顔面騎乗", c: "高潔な騎士が女勇者に完敗して跪く……そのギャップがたまらないんでしょ？" },
         mage: { n: "魔力供給用の杖", s: "搾取される魔力", i: "魔力を吸い取る魔石", o: "匂いかぎ", c: "自分は魔法を放てず、ただ女勇者に魔力を吸い取られるだけの道具ね。" },
         slime: { n: "お掃除スライム", s: "全身粘液", i: "勇者の靴磨きセット", o: "指アナル", c: "踏まれても斬られても喜ぶスライム。女勇者の足元の汚れを舐めとってなさい。" },
-        shield: { n: "人間盾", s: "ダメージ全吸収", i: "ボコボコの鉄板", o: "拘束、乳首舐め", c: "攻撃を避けるなんて言語道断。すべての苦痛を正面から受け止めるのがアンタの運命よ。" },
+        shield: { n: "人間盾", s: "ダメージ全吸収", i: "ボボコの鉄板", o: "拘束、乳首舐め", c: "攻撃を避けるなんて言語道断。すべての苦痛を正面から受け止めるのがアンタの運命よ。" },
         slave: { n: "終身刑の奴隷", s: "絶対服従", i: "外れない鉄枷", o: "ビンタ、蹴り、目隠し、拘束", c: "名前すら奪われて、ただの番号で呼ばれる快感。一生彼女の所有物ね。" }
     };
 
     const goddessQuotes = ["「へぇー、そんなのが好きなんだ？」", "「素直でよろしいわ！」", "「アンタ、なかなかの逸材ね……」", "「それ、女勇者が聞いたら喜ぶわよ？」", "「ふふっ、次はどう答えるのかしら？」"];
     
-    // クイズ設問
     const qs = [
         { q: "女勇者に「今日から人間禁止。犬になりなさい」と言われたら？", a: [{t: "「ワン！」と即座に吠える", j: "dog"}, {t: "四つん這いで靴を舐める", j: "slime"}, {t: "首輪を要求する", j: "slave"}, {t: "屈辱に震えながら従う", j: "knight"}] },
         { q: "休憩中、女勇者が椅子に座ろうとしています。どうする？", a: [{t: "自分が床になって踏んでもらう", j: "floor"}, {t: "足台として跪く", j: "knight"}, {t: "彼女の足をマッサージする奴隷になる", j: "slave"}, {t: "お掃除スライムとして尻の下を掃除する", j: "slime"}] },
@@ -194,22 +234,13 @@
             <span style="color:var(--gold)">女勇者との相性：絶頂級</span>
         `;
 
-        // データベース（Googleスプレッドシート）へこっそり送信
-        // YOUR_GAS_URL_HERE を自分のGASのURLに書き換えてください
-        // データベース（Googleスプレッドシート）へ送信
         const gasUrl = 'https://script.google.com/macros/s/AKfycbyW8CRcuMZ1aIZgCORx7k0CQPc0f25awVmtC_fkeyfLmiFwlzlXxetA4OgmZqUFMo7hqA/exec';
-        
-        // fetchをそのまま実行するように変更
         fetch(gasUrl, {
             method: 'POST',
             mode: 'no-cors',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name: userName, job: finalJobName })
-        }).then(() => {
-            console.log("Data sent to Google Sheets");
-        }).catch((error) => {
-            console.error("Error sending data:", error);
-        });
+        }).catch(err => console.log("Database save failed."));
 
         document.getElementById('btn-share').onclick = () => {
             const text = encodeURIComponent(`【M男転生診断結果】\n私のジョブは「${finalJobName}」でした！\n女勇者にイかされてきます。\n#M男転生診断 #異世界転生`);
@@ -219,6 +250,3 @@
 </script>
 </body>
 </html>
-
-
-
