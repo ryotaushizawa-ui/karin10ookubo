@@ -5,43 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>M男転生～女神にM男診断されて女勇者にイかされる～</title>
     <style>
-        :root { --primary: #9d50bb; --bg: #0f0c29; --text: #ffffff; --gold: #ffeb3b; --x-color: #000000; }
-        body { background: var(--bg); color: var(--text); font-family: sans-serif; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; margin: 0; overflow-y: auto; padding: 20px 0; }
-        
+        :root { --primary: #9d50bb; --bg: #0f0c29; --text: #ffffff; --gold: #ffeb3b; }
+        body { background: var(--bg); color: var(--text); font-family: sans-serif; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; margin: 0; overflow-x: hidden; padding: 20px 0; }
         #game-box { width: 92%; max-width: 480px; background: #1a1a2e; padding: 25px; border: 4px solid var(--primary); text-align: center; box-shadow: 10px 10px 0px #000; position: relative; }
-        
-        /* 女神演出用 */
-        .goddess-content { opacity: 0; transition: opacity 2s; display: none; }
-        .goddess-visible { opacity: 1 !important; display: block !important; }
-
-        /* トラック演出用 */
+        .goddess-content { opacity: 0; display: none; }
+        .goddess-visible { opacity: 1 !important; display: block !important; animation: fadeIn 2s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         #accident-scene { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 9999; display: none; align-items: center; justify-content: center; }
         #truck { position: absolute; font-size: 8rem; right: -250px; z-index: 10001; }
         #accident-txt { color: #000; font-size: 2rem; font-weight: bold; z-index: 10000; }
-
-        /* ノベル画面 */
         #novel-text { line-height: 1.8; font-size: 1.1rem; min-height: 120px; padding: 20px; display: flex; align-items: center; justify-content: center; }
-        .skip-link { display: inline-block; margin-top: 20px; color: #888; text-decoration: underline; cursor: pointer; font-size: 0.8rem; }
-
         .logo-img { width: 100%; max-width: 320px; margin-bottom: 25px; }
-        .goddess-img { width: 100%; height: auto; border: 2px solid #fff; background: #333; display: block; margin: 0 auto; }
-        
-        .msg-bubble { background: #fff; color: #000; padding: 15px; border-radius: 10px; margin-top: 25px; margin-bottom: 20px; font-weight: bold; font-size: 0.85rem; position: relative; min-height: 3em; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .msg-bubble::after { content: ""; position: absolute; top: -15px; left: 30px; border-width: 0 12px 15px 12px; border-style: solid; border-color: transparent transparent #ffffff transparent; }
-
+        .goddess-img { width: 100%; height: auto; border: 2px solid #fff; background: #333; display: block; margin: 0 auto; border-radius: 4px; }
+        .msg-bubble { background: #fff; color: #000; padding: 20px; border-radius: 12px; margin-top: 25px; margin-bottom: 20px; font-weight: bold; font-size: 0.95rem; line-height: 1.6; position: relative; min-height: 80px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 3px solid var(--primary); }
+        .msg-bubble::after { content: "▼ CLICK TO START"; position: absolute; bottom: 5px; right: 15px; font-size: 0.6rem; color: #9d50bb; animation: blink 1s infinite; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
         #user-name { padding: 12px; width: 80%; margin-bottom: 20px; border-radius: 5px; border: 2px solid var(--primary); text-align: center; font-size: 1rem; background: #000; color: #fff; }
-
         .choices { display: grid; gap: 8px; }
-        button { background: #eee; border: none; padding: 15px; font-weight: bold; cursor: pointer; box-shadow: 4px 4px 06px #666; font-size: 1rem; color: #000; transition: 0.1s; width: 100%; }
+        button { background: #eee; border: none; padding: 15px; font-weight: bold; cursor: pointer; box-shadow: 4px 4px 0px #666; font-size: 1rem; color: #000; transition: 0.1s; width: 100%; }
         button:hover { background: var(--gold); transform: translate(2px, 2px); box-shadow: 2px 2px 0px #666; }
-        
         .hidden { display: none !important; }
         .job-res { font-size: 2.2rem; color: var(--gold); text-shadow: 2px 2px #000; margin: 10px 0; font-weight: bold; }
-        .stats { text-align: left; background: #000; padding: 12px; border: 1px dashed var(--gold); font-size: 0.8rem; line-height: 1.5; }
-        .option-box { margin-top: 10px; padding: 8px; background: #222; border-left: 4px solid #f00; color: #ff8888; font-weight: bold; font-size: 0.9rem; }
-        #q-num { color: var(--gold); font-size: 0.8rem; font-weight: bold; margin-bottom: 5px; }
-        
-        footer { margin-top: 30px; color: #666; font-size: 0.7rem; text-align: center; line-height: 1.6; }
+        .stats { text-align: left; background: #000; padding: 12px; border: 1px dashed var(--gold); font-size: 0.85rem; line-height: 1.6; }
+        footer { margin-top: 30px; color: #666; font-size: 0.75rem; text-align: center; line-height: 1.6; }
     </style>
 </head>
 <body>
@@ -68,27 +54,28 @@
         <div id="novel-text"></div>
         <div style="margin-top: 20px;">
             <button onclick="nextNovel()" style="width: auto; padding: 10px 40px;">次へ</button>
-            <br>
-            <span class="skip-link" onclick="skipToQuiz()">≫ 全演出をスキップして即診断</span>
         </div>
     </div>
 
     <div id="goddess-wrap" class="goddess-content">
-        <img src="megami.jpg" id="goddess-image" class="goddess-img" alt="女神画像">
-        <div id="goddess-comment" class="msg-bubble" onclick="startQuiz()"></div>
-        <div id="quiz" class="hidden">
-            <div id="q-num"></div>
-            <div id="q-text" style="margin-bottom: 20px; font-weight: bold; min-height: 3em; font-size: 0.95rem;"></div>
+        <div id="goddess-stage" style="background: #fff; padding: 15px; border-radius: 8px;">
+            <img src="megami.jpg" class="goddess-img" alt="女神画像">
+            <div id="goddess-comment" class="msg-bubble" onclick="startQuiz()"></div>
+        </div>
+
+        <div id="quiz" class="hidden" style="margin-top: 20px;">
+            <div id="q-num" style="color:var(--gold); font-size:0.8rem; margin-bottom:10px;"></div>
+            <div id="q-text" style="margin-bottom: 20px; font-weight: bold; font-size: 1rem;"></div>
             <div class="choices" id="choices"></div>
         </div>
     </div>
 
     <div id="result" class="hidden">
-        <div style="font-weight: bold; font-size: 0.8rem;">鑑定結果：<span id="res-name-label"></span>のジョブは…</div>
+        <div style="font-weight: bold; font-size: 0.9rem;">鑑定結果：<span id="res-name-label"></span>のジョブは…</div>
         <div class="job-res" id="job-name"></div>
         <div class="stats" id="detail"></div>
-        <button id="btn-share" class="share-btn" style="background: #000; color: #fff; margin-top: 15px;">結果をXでシェア</button>
-        <button onclick="location.reload()" style="margin-top:15px; background: #999;">タイトルへ戻る</button>
+        <button id="btn-share" style="background: #000; color: #fff; margin-top: 15px;">結果をXで報告</button>
+        <button onclick="location.reload()" style="margin-top:15px; background: #999;">タイトルへ</button>
     </div>
 </div>
 
@@ -100,7 +87,6 @@
 <script>
     const commentBox = document.getElementById('goddess-comment');
     const goddessWrap = document.getElementById('goddess-wrap');
-    let finalJobName = "";
     let userName = "";
 
     function goToNameInput() {
@@ -111,7 +97,6 @@
     const getScenario = (name) => [
         `俺の名前は、${name}。`,
         "ごく普通の、どこにでもある平凡な毎日を送る男だ。",
-        "仕事帰りのコンビニ。いつものコーヒー。それが唯一の癒やしだった。",
         "だが、ふと見上げた夜空に、見たこともない色の星が流れた気がした。",
         "「……ん？」",
         "背後から、不自然なほどの熱風と、鼓膜を震わせる轟音が迫る。",
@@ -139,13 +124,6 @@
 
     function nextNovel() { showNextSentence(); }
 
-    function skipToQuiz() {
-        userName = document.getElementById('user-name').value || "名無し";
-        document.querySelectorAll('#game-box > div').forEach(div => div.classList.add('hidden'));
-        goddessWrap.classList.add('goddess-visible');
-        commentBox.innerText = `ひどい事故だったわね、${userName}。悪いけどM男枠しか空いてないわ。画面をタップして診断を始めなさい。`;
-    }
-
     function startAccident() {
         document.getElementById('novel-screen').classList.add('hidden');
         const scene = document.getElementById('accident-scene');
@@ -154,7 +132,7 @@
         scene.style.display = 'flex';
         let pos = -250;
         const drive = setInterval(() => {
-            pos += 12;
+            pos += 15;
             truck.style.right = pos + 'px';
             if (pos > window.innerWidth / 2 - 50) {
                 txt.innerText = "ガシャーーーーン！！";
@@ -172,10 +150,26 @@
                 setTimeout(() => {
                     scene.style.display = 'none';
                     goddessWrap.classList.add('goddess-visible');
-                    commentBox.innerText = `ひどい事故だったわね、${userName}。悪いけどM男枠しか空いてないわ。画面をタップして診断を始めなさい。`;
-                }, 1000);
+                    setRandomGoddessQuote();
+                }, 800);
             }, 1000);
-        }, 3000);
+        }, 2800);
+    }
+
+    function setRandomGoddessQuote() {
+        const quotes = [
+            `ひどい事故だったわね……。というわけで${userName}。アンタには転生してもらうわ。ただ、地球で流行っている転生モノ？のせいで連日転生させてて今M男枠しか空いてないから。じゃ、色々きかせて？`,
+            `あら、${userName}。トラックに轢かれて転生なんてベタねぇ。あいにくジョブの在庫がM男しかないの。文句は受け付けないわよ？`,
+            `はい、手続き開始。死因はやっぱりトラックね。今、異世界は大転生ブームでジョブ不足なの。アンタはM男として頑張ってもらうわ。`,
+            `${userName}、アンタには立派なM男の素質があるわ。女神の私が直々に天職を授けてあげる。さあ、質問に答えなさい。`,
+            `死んじゃった感想はどう？落ち込んでも仕方ないわ。異世界での第二の人生、M男として謳歌しなさいな。ふふっ。`,
+            `${userName}、アンタの魂、ちょっと歪んでるわね。でも安心なさい、ぴったりの『M男枠』が空いてるわ。感謝しなさいよね？`,
+            `はい手続き手続き。最近は転生者が多すぎて勇者枠なんて残ってないの。アンタは今日からM男よ。文句ある？`,
+            `あら、${userName}。アンタの運命はここで終わりじゃないわ。でも、選べるのはM男の道だけ。……あら、嬉しそうな顔ね？`,
+            `異世界転生って憧れるでしょ？でも現実は甘いのよ。今のトレンドはM男なの。私がアンタの属性を見極めてあげる。`,
+            `えっ、もう死んじゃったの？ドジねぇ。特別なジョブを授けてあげる。……あ、ごめん、M男枠しか残ってなかったわ！`
+        ];
+        commentBox.innerText = quotes[Math.floor(Math.random() * quotes.length)];
     }
 
     function startQuiz() {
@@ -184,7 +178,6 @@
         showQ();
     }
 
-    // ジョブ・質問データは変更なし
     const jobs = {
         alchemist: { n: "実験体錬金術師", s: "劇薬耐性(快感)", i: "怪しい薬の試験管", o: "ハッピーセット", c: "女勇者の作る怪しいポーションを喜んで飲み干す姿……立派な変態ね。" },
         dog: { n: "勇者のペット（犬）", s: "お手・おかわり", i: "トゲ付きの首輪", o: "Mセット", c: "人間をやめて犬として生きる道を選んだのね。四つん這いで這いつくばりなさい！" },
@@ -196,8 +189,6 @@
         slave: { n: "終身刑の奴隷", s: "絶対服従", i: "外れない鉄枷", o: "ビンタ、蹴り、目隠し、拘束", c: "名前すら奪われて、ただの番号で呼ばれる快感。一生彼女の所有物ね。" }
     };
 
-    const goddessQuotes = ["「へぇー、そんなのが好きなんだ？」", "「素直でよろしいわ！」", "「アンタ、なかなかの逸材ね……」", "「それ、女勇者が聞いたら喜ぶわよ？」", "「ふふっ、次はどう答えるのかしら？」"];
-    
     const qs = [
         { q: "女勇者に「今日から人間禁止。犬になりなさい」と言われたら？", a: [
             {t: "「ワン！」と即座に吠える", j: "dog"}, {t: "四つん這いで靴を舐める", j: "slime"}, {t: "首輪を要求する", j: "slave"}, {t: "屈辱に震えながら従う", j: "knight"}, {t: "「一生鎖に繋がれたい！」(即決)", j: "dog", instant: true}
@@ -212,7 +203,7 @@
             {t: "無言で肉体の盾になる", j: "shield"}, {t: "「盾になれて幸せ」と叫ぶ", j: "dog"}, {t: "魔力を吸い取らせる", j: "mage"}, {t: "彼女の足元を守る", j: "floor"}, {t: "「俺を使い潰して生き残ってくれ！」(即決)", j: "shield", instant: true}
         ]},
         { q: "女勇者の魔力が枯渇しました。どうやって助ける？", a: [
-            {t: "自分の生命力を魔力として捧げる", j: "mage"}, {t: "魔力回復薬の実験台になる", j: "alchemist"}, {t: "彼女を励ますために鞭打たれる", j: "knight"}, {t: "ただ静かに踏まれて活力を与える", j: "floor"}, {t: "「俺を絞り尽くして空っぽにして！」(即決)", j: "mage", instant: true}
+            {t: "生命力を魔力として捧げる", j: "mage"}, {t: "魔力回復薬の実験台になる", j: "alchemist"}, {t: "彼女を励ますために鞭打たれる", j: "knight"}, {t: "ただ静かに踏まれて活力を与える", j: "floor"}, {t: "「俺を絞り尽くして空っぽにして！」(即決)", j: "mage", instant: true}
         ]},
         { q: "街の人に、彼女のペットとして紹介されたら？", a: [
             {t: "喜んで愛想を振りまく", j: "dog"}, {t: "恥ずかしさに震える", j: "knight"}, {t: "主人の自慢になるよう振る舞う", j: "slave"}, {t: "無機質な表情を貫く", j: "shield"}, {t: "「もっと周囲に見せびらかして！」(即決)", j: "dog", instant: true}
@@ -247,14 +238,13 @@
                 btn.onclick = () => { 
                     if(ans.instant) {
                         scores[ans.j] = 999;
-                        commentBox.innerText = "「……えっ、即答？ アンタ、よっぽどのドMなのね……。もう鑑定するまでもないわ」";
+                        commentBox.innerText = "「……えっ、即答！？ アンタ、よっぽどのドMなのね……。もう鑑定するまでもないわ」";
                         commentBox.classList.remove('hidden');
                         document.getElementById('quiz').classList.add('hidden');
                         setTimeout(showResult, 1200);
                     } else {
                         scores[ans.j]++; 
                         currentQ++; 
-                        commentBox.innerText = goddessQuotes[Math.floor(Math.random()*goddessQuotes.length)];
                         showQ(); 
                     }
                 };
@@ -268,21 +258,19 @@
         document.getElementById('result').classList.remove('hidden');
         let maxJob = Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
         const job = jobs[maxJob];
-        finalJobName = job.n;
         document.getElementById('res-name-label').innerText = userName;
         document.getElementById('job-name').innerText = job.n;
-        commentBox.innerText = `決まったわよ、${userName}！アンタにぴったりの役職はこれ！`;
+        commentBox.innerText = `鑑定完了！アンタの転生先は、この「${job.n}」よ。存分に可愛がってもらいなさい。`;
         commentBox.classList.remove('hidden');
         document.getElementById('detail').innerHTML = `
             <strong>女神の評価：</strong> ${job.c}<br><br>
             <strong>能力：</strong> ${job.s} / <strong>装備：</strong> ${job.i}<br>
-            <div class="option-box">♥おすすめオプション：${job.o}</div><br>
-            <span style="color:var(--gold)">女勇者との相性：絶頂級</span>
+            <div style="margin-top:10px; padding:8px; background:#222; border-left:4px solid #f00; color:#ff8888;">♥おすすめ：${job.o}</div>
         `;
-        const gasUrl = 'https://script.google.com/macros/s/AKfycbyW8CRcuMZ1aIZgCORx7k0CQPc0f25awVmtC_fkeyfLmiFwlzlXxetA4OgmZqUFMo7hqA/exec';
-        fetch(gasUrl, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ name: userName, job: finalJobName }) });
+        const gasUrl = 'ここにデプロイしたURLを貼る';
+        fetch(gasUrl, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ name: userName, job: job.n }) });
         document.getElementById('btn-share').onclick = () => {
-            const text = encodeURIComponent(`【M男転生診断】\n私のジョブは「${finalJobName}」に決定！\n#M男転生診断 #異世界転生`);
+            const text = encodeURIComponent(`【M男転生診断】\n私の転生ジョブは「${job.n}」！\n#M男転生診断 #異世界転生`);
             window.open(`https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(window.location.href)}`, '_blank');
         };
     }
