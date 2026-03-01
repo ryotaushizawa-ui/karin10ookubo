@@ -26,13 +26,13 @@
         .logo-img { width: 100%; max-width: 320px; margin-bottom: 25px; }
         .goddess-img { width: 100%; height: auto; border: 2px solid #fff; background: #333; display: block; margin: 0 auto; }
         
-        .msg-bubble { background: #fff; color: #000; padding: 15px; border-radius: 10px; margin-top: 25px; margin-bottom: 20px; font-weight: bold; font-size: 0.85rem; position: relative; min-height: 3em; display: flex; align-items: center; justify-content: center; }
+        .msg-bubble { background: #fff; color: #000; padding: 15px; border-radius: 10px; margin-top: 25px; margin-bottom: 20px; font-weight: bold; font-size: 0.85rem; position: relative; min-height: 3em; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         .msg-bubble::after { content: ""; position: absolute; top: -15px; left: 30px; border-width: 0 12px 15px 12px; border-style: solid; border-color: transparent transparent #ffffff transparent; }
 
         #user-name { padding: 12px; width: 80%; margin-bottom: 20px; border-radius: 5px; border: 2px solid var(--primary); text-align: center; font-size: 1rem; background: #000; color: #fff; }
 
         .choices { display: grid; gap: 8px; }
-        button { background: #eee; border: none; padding: 15px; font-weight: bold; cursor: pointer; box-shadow: 4px 4px 0px #666; font-size: 1rem; color: #000; transition: 0.1s; width: 100%; }
+        button { background: #eee; border: none; padding: 15px; font-weight: bold; cursor: pointer; box-shadow: 4px 4px 06px #666; font-size: 1rem; color: #000; transition: 0.1s; width: 100%; }
         button:hover { background: var(--gold); transform: translate(2px, 2px); box-shadow: 2px 2px 0px #666; }
         
         .hidden { display: none !important; }
@@ -75,7 +75,7 @@
 
     <div id="goddess-wrap" class="goddess-content">
         <img src="megami.jpg" id="goddess-image" class="goddess-img" alt="女神画像">
-        <div id="goddess-comment" class="msg-bubble"></div>
+        <div id="goddess-comment" class="msg-bubble" onclick="startQuiz()"></div>
         <div id="quiz" class="hidden">
             <div id="q-num"></div>
             <div id="q-text" style="margin-bottom: 20px; font-weight: bold; min-height: 3em; font-size: 0.95rem;"></div>
@@ -143,9 +143,7 @@
         userName = document.getElementById('user-name').value || "名無し";
         document.querySelectorAll('#game-box > div').forEach(div => div.classList.add('hidden'));
         goddessWrap.classList.add('goddess-visible');
-        document.getElementById('quiz').classList.remove('hidden');
-        commentBox.innerText = `「ひどい事故だったわね、${userName}。最近地球で人気な異世界転生モノ？のせいで転生者が絶えないの。悪いけどM男枠しか空いてないわ」`;
-        showQ();
+        commentBox.innerText = `ひどい事故だったわね、${userName}。悪いけどM男枠しか空いてないわ。画面をタップして診断を始めなさい。`;
     }
 
     function startAccident() {
@@ -174,15 +172,19 @@
                 setTimeout(() => {
                     scene.style.display = 'none';
                     goddessWrap.classList.add('goddess-visible');
-                    document.getElementById('quiz').classList.remove('hidden');
-                    commentBox.innerText = `「ひどい事故だったわね、${userName}。最近地球で人気な異世界転生モノ？のせいで転生者が絶えないの。悪いけどM男枠しか空いてないわ」`;
-                    showQ();
+                    commentBox.innerText = `ひどい事故だったわね、${userName}。悪いけどM男枠しか空いてないわ。画面をタップして診断を始めなさい。`;
                 }, 1000);
             }, 1000);
         }, 3000);
     }
 
-    // ジョブ・質問データは変更なし（長くなるため省略せず含めています）
+    function startQuiz() {
+        commentBox.classList.add('hidden');
+        document.getElementById('quiz').classList.remove('hidden');
+        showQ();
+    }
+
+    // ジョブ・質問データは変更なし
     const jobs = {
         alchemist: { n: "実験体錬金術師", s: "劇薬耐性(快感)", i: "怪しい薬の試験管", o: "ハッピーセット", c: "女勇者の作る怪しいポーションを喜んで飲み干す姿……立派な変態ね。" },
         dog: { n: "勇者のペット（犬）", s: "お手・おかわり", i: "トゲ付きの首輪", o: "Mセット", c: "人間をやめて犬として生きる道を選んだのね。四つん這いで這いつくばりなさい！" },
@@ -246,6 +248,8 @@
                     if(ans.instant) {
                         scores[ans.j] = 999;
                         commentBox.innerText = "「……えっ、即答？ アンタ、よっぽどのドMなのね……。もう鑑定するまでもないわ」";
+                        commentBox.classList.remove('hidden');
+                        document.getElementById('quiz').classList.add('hidden');
                         setTimeout(showResult, 1200);
                     } else {
                         scores[ans.j]++; 
@@ -267,7 +271,8 @@
         finalJobName = job.n;
         document.getElementById('res-name-label').innerText = userName;
         document.getElementById('job-name').innerText = job.n;
-        commentBox.innerText = `「決まったわよ、${userName}！アンタにぴったりの役職はこれ！」`;
+        commentBox.innerText = `決まったわよ、${userName}！アンタにぴったりの役職はこれ！`;
+        commentBox.classList.remove('hidden');
         document.getElementById('detail').innerHTML = `
             <strong>女神の評価：</strong> ${job.c}<br><br>
             <strong>能力：</strong> ${job.s} / <strong>装備：</strong> ${job.i}<br>
