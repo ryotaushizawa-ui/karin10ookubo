@@ -18,9 +18,14 @@
         .logo-img { width: 100%; max-width: 320px; margin-bottom: 25px; }
         .goddess-img { width: 100%; height: auto; border: 2px solid #fff; background: #333; display: block; margin: 0 auto; border-radius: 4px; }
         
+        /* 吹き出しのスタイル */
         .msg-bubble { background: #fff; color: #000; padding: 20px; border-radius: 12px; margin-top: 25px; margin-bottom: 20px; font-weight: bold; font-size: 0.9rem; line-height: 1.6; position: relative; cursor: pointer; border: 3px solid var(--primary); text-align: left; }
         .msg-bubble::after { content: "▼ CLICK"; position: absolute; bottom: 5px; right: 15px; font-size: 0.6rem; color: #9d50bb; animation: blink 1s infinite; }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        
+        /* 結果画面ではクリック指マークとアニメーションを消すためのクラス */
+        .msg-bubble.no-click { cursor: default; }
+        .msg-bubble.no-click::after { display: none; }
 
         #user-name { padding: 12px; width: 80%; margin-bottom: 20px; border-radius: 5px; border: 2px solid var(--primary); text-align: center; font-size: 1rem; background: #000; color: #fff; }
         .choices { display: grid; gap: 10px; }
@@ -100,6 +105,7 @@
     let scores = {};
     let novelIndex = 0;
     let isCheat = false;
+    let canClickBubble = true; // 吹き出しをクリックできるかどうかのフラグ
 
     const jobs = {
         fenrir: { n: "高貴なる処刑犬（フェンリル）", s: "神話級の従順、黄金の鎖", i: "魔力封じの枷", o: "全身拘束、遠吠え、マズル", c: "伝説の幻獣なのに、中身は普通の犬よりずっと高潔で、それでいて救いようのないドMだなんて……ギャップが凄まじいわね。" },
@@ -134,10 +140,8 @@
 
     function startNovel() {
         userName = document.getElementById('user-name').value || "名無し";
-        // ★チートキーワード判定
         if (userName.includes("全知全能のドM")) {
             isCheat = true;
-            // キーワード一致時はノベル画面を表示せず、即女神へ
             transitionToGoddess();
         } else {
             document.getElementById('name-input-screen').classList.add('hidden');
@@ -147,14 +151,7 @@
     }
 
     function showNextSentence() {
-        const scenario = [
-            `俺の名前は、${userName}。`,
-            "ごく普通の、どこにでもある平凡な毎日を送る男だ。",
-            "だが、ふと見上げた夜空に、見たこともない色の星が流れた気がした。",
-            "「……ん？」",
-            "背後から、不自然なほどの熱風と、凄まじい轟音が迫る。",
-            "振り返ると、そこには視界を埋め尽くすほどの光が――"
-        ];
+        const scenario = [`俺の名前は、${userName}。`,"ごく普通の毎日を送る男だ。","だが、見たこともない色の星が流れた気がした。","「……ん？」","背後から、凄まじい轟音が迫る。","振り返ると、そこには視界を埋め尽くすほどの光が――"];
         if (novelIndex < scenario.length) {
             document.getElementById('novel-text').innerText = scenario[novelIndex];
             novelIndex++;
@@ -175,7 +172,6 @@
         setTimeout(() => { whiteOut.style.opacity = '1'; }, 20);
 
         setTimeout(() => {
-            // ノベル画面と名前入力画面の両方を確実に隠す
             novelScreen.classList.add('hidden');
             nameScreen.classList.add('hidden');
             goddessWrap.classList.add('goddess-visible');
@@ -195,6 +191,8 @@
     }
 
     function handleGoddessClick() {
+        if (!canClickBubble) return; // 結果画面では反応させない
+        
         document.getElementById('goddess-comment').classList.add('hidden');
         if (isCheat) {
             showCheatMenu();
@@ -237,11 +235,15 @@
     }
 
     function showResult(cheatKey = null) {
+        // 重要：吹き出しのクリック機能を封印する
+        canClickBubble = false; 
+        document.getElementById('goddess-comment').classList.add('no-click');
+
         document.getElementById('quiz').classList.add('hidden');
         document.getElementById('cheat-menu').classList.add('hidden');
         document.getElementById('result').classList.remove('hidden');
-        const commentBox = document.getElementById('goddess-comment');
         
+        const commentBox = document.getElementById('goddess-comment');
         let maxJob = cheatKey || Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
         const job = jobs[maxJob];
         
@@ -249,7 +251,11 @@
         document.getElementById('job-name').innerText = job.n;
         
         if (isCheat) {
-            commentBox.innerText = `全知全能のドM様にとって、この「${job.n}」の運命など、ほんの余興に過ぎないのでしょうね……。どうぞ、存分にお楽しみください。`;
+            commentBox.innerText = `全知全能のドM様にとって、この「${job.n}」の運命など、ほんの余興に過ぎないのでしょうね……。`;
+        } else if (maxJob === 'fenrir') {
+            commentBox.innerText = "「ちょ、ちょっと待って！ 伝説のフェンリルを引き当てるなんて……。アンタ、とんでもない素質を隠してたわね……」";
+        } else if (maxJob === 'sage') {
+            commentBox.innerText = "「賢者……？ いえ、これ『こじらせドM賢者』じゃない！ 女勇者も困惑するレベルのこだわりよ……」";
         } else {
             commentBox.innerText = `鑑定完了！アンタの転生先は、この「${job.n}」よ。存分に可愛がってもらいなさい。`;
         }
