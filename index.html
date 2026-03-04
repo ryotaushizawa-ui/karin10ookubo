@@ -9,7 +9,6 @@
         body { background: var(--bg); color: var(--text); font-family: sans-serif; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px 0; }
         #game-box { width: 92%; max-width: 480px; background: #1a1a2e; padding: 25px; border: 4px solid var(--primary); text-align: center; box-shadow: 10px 10px 0px #000; position: relative; }
         
-        /* ホワイトアウト演出 */
         #white-out { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 9999; display: none; opacity: 0; transition: opacity 0.8s; pointer-events: none; }
         
         .goddess-content { opacity: 0; display: none; }
@@ -20,44 +19,26 @@
         .goddess-img { width: 100%; height: auto; border: 2px solid #fff; background: #333; display: block; margin: 0 auto; border-radius: 4px; }
         
         .msg-bubble { background: #fff; color: #000; padding: 20px; border-radius: 12px; margin-top: 25px; margin-bottom: 20px; font-weight: bold; font-size: 0.9rem; line-height: 1.6; position: relative; cursor: pointer; border: 3px solid var(--primary); text-align: left; }
-        .msg-bubble::after { content: "▼ CLICK TO START"; position: absolute; bottom: 5px; right: 15px; font-size: 0.6rem; color: #9d50bb; animation: blink 1s infinite; }
+        .msg-bubble::after { content: "▼ CLICK"; position: absolute; bottom: 5px; right: 15px; font-size: 0.6rem; color: #9d50bb; animation: blink 1s infinite; }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
         #user-name { padding: 12px; width: 80%; margin-bottom: 20px; border-radius: 5px; border: 2px solid var(--primary); text-align: center; font-size: 1rem; background: #000; color: #fff; }
         .choices { display: grid; gap: 10px; }
 
-        /* --- ボタンのスマホ最適化 --- */
         button { 
-            background: #eee; 
-            border: none; 
-            padding: 15px; 
-            font-weight: bold; 
-            cursor: pointer; 
-            box-shadow: 4px 4px 0px #666; 
-            font-size: 0.95rem; 
-            color: #000; 
-            transition: 0.1s; 
-            width: 100%; 
-            text-align: left; 
-            -webkit-tap-highlight-color: transparent; /* スマホのタップ青枠消し */
+            background: #eee; border: none; padding: 15px; font-weight: bold; cursor: pointer; box-shadow: 4px 4px 0px #666; font-size: 0.95rem; color: #000; transition: 0.1s; width: 100%; text-align: left; -webkit-tap-highlight-color: transparent;
         }
 
-        /* PC環境のみホバーを有効にする */
         @media (hover: hover) {
             button:hover { background: var(--gold); transform: translate(2px, 2px); box-shadow: 2px 2px 0px #666; }
         }
 
-        /* スマホ・PC共通：押した瞬間だけ黄色くする */
-        button:active { 
-            background: var(--gold) !important; 
-            transform: translate(2px, 2px); 
-            box-shadow: 2px 2px 0px #666; 
-        }
+        button:active { background: var(--gold) !important; transform: translate(2px, 2px); box-shadow: 2px 2px 0px #666; }
 
         .hidden { display: none !important; }
         .job-res { font-size: 1.8rem; color: var(--gold); text-shadow: 2px 2px #000; margin: 10px 0; font-weight: bold; }
         .stats { text-align: left; background: #000; padding: 15px; border: 1px dashed var(--gold); font-size: 0.85rem; line-height: 1.6; }
-        footer { margin-top: 30px; color: #666; font-size: 0.75rem; text-align: center; }
+        .cheat-badge { background: #f00; color: #fff; font-size: 0.7rem; padding: 2px 5px; border-radius: 3px; vertical-align: middle; margin-right: 5px; }
     </style>
 </head>
 <body>
@@ -85,13 +66,18 @@
     <div id="goddess-wrap" class="goddess-content">
         <div style="background: #fff; padding: 15px; border-radius: 8px;">
             <img src="megami.jpg" class="goddess-img" alt="女神画像">
-            <div id="goddess-comment" class="msg-bubble" onclick="startQuiz()"></div>
+            <div id="goddess-comment" class="msg-bubble" onclick="handleGoddessClick()"></div>
         </div>
 
         <div id="quiz" class="hidden" style="margin-top: 20px;">
             <div id="q-num" style="color:var(--gold); font-size:0.8rem; margin-bottom:10px; font-weight:bold;"></div>
             <div id="q-text" style="margin-bottom: 20px; font-weight: bold; font-size: 1rem; text-align:left;"></div>
             <div class="choices" id="choices"></div>
+        </div>
+
+        <div id="cheat-menu" class="hidden" style="margin-top: 20px;">
+            <p style="color:var(--gold); font-weight:bold; font-size:0.8rem;">★チートモード発動：職業を直接選択★</p>
+            <div class="choices" id="cheat-choices"></div>
         </div>
     </div>
 
@@ -104,19 +90,16 @@
     </div>
 </div>
 
-<footer>
-    かりんと大久保・新大久保店presents<br>M男転生project
-</footer>
-
 <script>
     let userName = "";
     let currentQ = 0;
     let scores = {};
     let novelIndex = 0;
+    let isCheat = false;
 
     const jobs = {
         fenrir: { n: "高貴なる処刑犬（フェンリル）", s: "神話級の従順、黄金の鎖", i: "魔力封じの枷", o: "全身拘束、遠吠え、マズル", c: "伝説の幻獣なのに、中身は普通の犬よりずっと高潔で、それでいて救いようのないドMだなんて……ギャップが凄まじいわね。" },
-        sage: { n: "深淵の探求賢者（セージ）", s: "絶頂魔法、自己犠牲儀式", i: "特注の緊縛ロープ", o: "放置、目隠し、徹底した責め", c: "魔法の才能が突き抜けてると思ったら、こだわりが強すぎる「こじらせドM」じゃない！理屈を並べて理想のプレイを要求するなんて、一番厄介ね。" },
+        sage: { n: "深淵の探求賢者（セージ）", s: "絶頂魔法、自己犠牲儀式", i: "特注の緊縛ロープ", o: "放置、目隠し、徹底した責め", c: "魔法の才能が突き抜けてると思ったら、こだわりが強すぎる「こじらせドM」じゃない！理屈を並べて理想のプレイを要求するなんて、ある意味一番厄介ね。" },
         alchemist: { n: "実験体錬金術師", s: "劇薬耐性(快感)", i: "怪しい薬の試験管", o: "ハッピーセット", c: "女勇者の作る怪しいポーションを喜んで飲み干す姿……立派な変態ね。" },
         dog: { n: "勇者のペット（犬）", s: "お手・おかわり", i: "トゲ付きの首輪", o: "Mセット", c: "人間をやめて犬として生きる道を選んだのね。四つん這いで這いつくばりなさい！" },
         floor: { n: "高機能な床", s: "踏まれ心地の追求", i: "高級なワックス", o: "踏みつけ", c: "もはや生物ですらないわ。女勇者に踏まれるためだけの「床」がお似合いよ。" },
@@ -128,66 +111,16 @@
     };
 
     const qs = [
-        { q: "女勇者に「今日から人間禁止。犬になりなさい」と言われたら？", a: [
-            {t: "「ワン！」と即座に吠えて、尻尾を振る", j: "dog"},
-            {t: "「私は神に仕える獣。ですが貴女には屈しましょう」と跪く", j: "fenrir"},
-            {t: "言葉を失い、屈辱に震えながら彼女の靴を見つめる", j: "knight"},
-            {t: "「犬としての適切な管理プロセスを教えてください」と聞く", j: "sage"}
-        ]},
-        { q: "パーティの休憩中、女勇者が椅子に座ろうとしています。あなたの行動は？", a: [
-            {t: "無言で床になり、彼女に踏まれる面積を最大化する", j: "floor"},
-            {t: "「ここの角度が最も座り心地が良いはずです」と理論的に椅子になる", j: "sage"},
-            {t: "彼女の足元で、スライムのように靴の汚れを気にし始める", j: "slime"},
-            {t: "盾を敷き、その上で自分もろとも踏まれるのを待つ", j: "shield"}
-        ]},
-        { q: "女勇者が「新しい毒薬の実験台が必要だ」と言い出しました。", a: [
-            {t: "「もっと強いのをください！」と、理性を捨てて飲み干す", j: "alchemist"},
-            {t: "震えながら「これも騎士の修行……」と自分に言い聞かせて飲む", j: "knight"},
-            {t: "毒の影響で身体が溶け、彼女の足元に広がる自分を想像する", j: "slime"},
-            {t: "鎖で繋がれたまま、拒否権がないことに安心しながら飲む", j: "slave"}
-        ]},
-        { q: "敵の強力な魔法が放たれました。あなたの「理想」の守り方は？", a: [
-            {t: "鉄板のように硬直して、彼女への衝撃をゼロにする", j: "shield"},
-            {t: "魔力と尊厳を吸い取られながら、魔法障壁を張る", j: "mage"},
-            {t: "彼女の前に跪き、守護獣としての意地を見せつつ蹂躙される", j: "fenrir"},
-            {t: "魔法の威力を分析し、最も苦痛が長く続く受け方を提案する", j: "sage"}
-        ]},
-        { q: "街の人々に、彼女の「所有物」として紹介された時の気分は？", a: [
-            {t: "「自分には名前などない、ただの番号だ」と復唱する", j: "slave"},
-            {t: "周囲の冷たい視線を浴びながら、首輪を引かれて悦に浸る", j: "dog"},
-            {t: "かつての部下に目撃され、絶望しながら命令に従う", j: "knight"},
-            {t: "「この主従の美学を誰も理解できないだろう」と悦に入る", j: "sage"}
-        ]},
-        { q: "女勇者に一生外れない「鉄枷（てつかせ）」をはめられることに。", a: [
-            {t: "「重い……最高だ……」と、その不自由さに涙を流す", j: "slave"},
-            {t: "「神話の狼を繋ぎ止めるとは、素晴らしい力だ」と称賛する", j: "fenrir"},
-            {t: "その枷の構造を観察し、より食い込む方法を自ら進言する", j: "sage"},
-            {t: "枷をはめられたまま、床として機能し続ける自分を誇る", j: "floor"}
-        ]},
-        { q: "戦いの後、彼女の靴が泥で汚れています。どうしますか？", a: [
-            {t: "スライムとして、核（コア）を刺激されるのを期待しつつ汚れを溶かす", j: "slime"},
-            {t: "床として横たわり、泥を落としやすい「質感」を提供する", j: "floor"},
-            {t: "「分析の結果、私の舌で拭うのが最適です」と主張する", j: "sage"},
-            {t: "犬のように這いつくばり、鼻を鳴らして許可を待つ", j: "dog"}
-        ]},
-        { q: "あなたが「道具」として扱われる際、最も快感なのは？", a: [
-            {t: "「代わりはいくらでもいる」と突き放される瞬間", j: "slime"},
-            {t: "「私にしか使えない道具だ」と固執される瞬間", j: "fenrir"},
-            {t: "自分の機能を効率的に使われ、理屈にかなった瞬間", j: "sage"},
-            {t: "何時間も無言で拘束され、意志を禁じられた瞬間", j: "shield"}
-        ]},
-        { q: "女勇者の魔力が枯渇しました。救済のために捧げるのは？", a: [
-            {t: "「童貞を貫いたこの魔力、すべて吸い取ってください」と捧げる", j: "mage"},
-            {t: "「この比率で抽出するのが最も効率的です」と計算して捧げる", j: "sage"},
-            {t: "黙って彼女の足首を掴み、生命力を直に流し込む", j: "fenrir"},
-            {t: "魔力回復薬を自ら作り、その副作用を全身で受ける", j: "alchemist"}
-        ]},
-        { q: "最後に確認します。あなたが異世界で「本当に」なりたいものは？", a: [
-            {t: "名前も言葉も持たない、完璧な「物（オブジェ）」", j: "floor"},
-            {t: "知性を持ったまま、命令という鎖に縛られる「囚われの魂」", j: "fenrir"},
-            {t: "いつでも八つ当たりできる、頑丈な「ゴミ箱」", j: "shield"},
-            {t: "主人の足元を清潔に保ち、影のように付き従う「獣」", j: "dog"}
-        ]}
+        { q: "女勇者に「今日から人間禁止。犬になりなさい」と言われたら？", a: [{t: "「ワン！」と吠えて尻尾を振る", j: "dog"}, {t: "「貴女には屈しましょう」と跪く", j: "fenrir"}, {t: "屈辱に震えながら靴を見つめる", j: "knight"}, {t: "「管理プロセスを教えてください」と聞く", j: "sage"}]},
+        { q: "パーティの休憩中、女勇者が椅子に座ろうとしています。あなたの行動は？", a: [{t: "無言で床になる", j: "floor"}, {t: "「ここが座り心地が良いです」と椅子になる", j: "sage"}, {t: "スライムになり靴の汚れを舐める", j: "slime"}, {t: "盾を敷き、自分もろとも踏まれる", j: "shield"}]},
+        { q: "女勇者が「新しい毒薬の実験台が必要だ」と言い出しました。", a: [{t: "「もっと強いのを！」と飲み干す", j: "alchemist"}, {t: "「これも騎士の修行……」と飲む", j: "knight"}, {t: "身体が溶けて彼女の足元に広がる", j: "slime"}, {t: "鎖で繋がれたまま拒否せず飲む", j: "slave"}]},
+        { q: "敵の強力な魔法が放たれました。あなたの「理想」の守り方は？", a: [{t: "鉄板のように硬直して衝撃をゼロにする", j: "shield"}, {t: "尊厳を吸い取られながら障壁を張る", j: "mage"}, {t: "守護獣として蹂躙される", j: "fenrir"}, {t: "最も苦痛が長く続く受け方を提案する", j: "sage"}]},
+        { q: "街の人々に、彼女の「所有物」として紹介された時の気分は？", a: [{t: "「自分はただの番号だ」と復唱する", j: "slave"}, {t: "首輪を引かれて悦に浸る", j: "dog"}, {t: "部下に目撃され、絶望しながら従う", j: "knight"}, {t: "「この美学は誰にも分からん」と悦に入る", j: "sage"}]},
+        { q: "女勇者に一生外れない「鉄枷（てつかせ）」をはめられることに。", a: [{t: "「重い……最高だ……」と涙を流す", j: "slave"}, {t: "「繋ぎ止めるとは素晴らしい力だ」と言う", j: "fenrir"}, {t: "より食い込む方法を自ら進言する", j: "sage"}, {t: "枷をはめられたまま床として機能する", j: "floor"}]},
+        { q: "戦いの後、彼女の靴が泥で汚れています。どうしますか？", a: [{t: "スライムになり核(コア)を刺激されるのを待つ", j: "slime"}, {t: "床として横たわり汚れを落とさせる", j: "floor"}, {t: "「私の舌で拭うのが最適です」と主張する", j: "sage"}, {t: "犬のように這いつくばり許可を待つ", j: "dog"}]},
+        { q: "あなたが「道具」として扱われる際、最も快感なのは？", a: [{t: "「代わりはいくらでもいる」と言われる", j: "slime"}, {t: "「私にしか使えない道具だ」と言われる", j: "fenrir"}, {t: "機能的に使われ、理屈にかなった瞬間", j: "sage"}, {t: "何時間も無言で拘束される瞬間", j: "shield"}]},
+        { q: "女勇者の魔力が枯渇しました。救済のために捧げるのは？", a: [{t: "童貞の魔力をすべて吸い取らせる", j: "mage"}, {t: "「この比率で抽出を」と計算して捧げる", j: "sage"}, {t: "黙って足首を掴み生命力を流し込む", j: "fenrir"}, {t: "魔力回復薬を自作し、副作用を受ける", j: "alchemist"}]},
+        { q: "最後に確認します。あなたが異世界で「本当に」なりたいものは？", a: [{t: "完璧な「物（オブジェ）」", j: "floor"}, {t: "命令という鎖に縛られる「魂」", j: "fenrir"}, {t: "頑丈な「ゴミ箱」", j: "shield"}, {t: "足元を清潔に保ち付き従う「獣」", j: "dog"}]}
     ];
 
     function goToNameInput() {
@@ -197,6 +130,10 @@
 
     function startNovel() {
         userName = document.getElementById('user-name').value || "名無し";
+        // ★チート判定：名前に「かりんと」が含まれていたらチートモード
+        if (userName.includes("かりんと")) {
+            isCheat = true;
+        }
         document.getElementById('name-input-screen').classList.add('hidden');
         document.getElementById('novel-screen').classList.remove('hidden');
         showNextSentence();
@@ -233,8 +170,11 @@
             novelScreen.classList.add('hidden');
             goddessWrap.classList.add('goddess-visible');
             
-            // 女神様のセリフ修正
-            commentBox.innerText = `ひどい事故だったわね、${userName}。ここにいるということはアンタはMの素質を見抜かれて、転生者に選ばれたのね。最近地球で人気な異世界転生モノ？のせいで転生者が絶えないからM男に転生してもらうわ。さぁ診断を始めましょう。`;
+            if (isCheat) {
+                commentBox.innerText = `あら、${userName}？ アンタ、ただの死人じゃないわね。その名に刻まれたコード……。いいわ、特別にアンタの「なりたい運命」を自分で選びなさい。`;
+            } else {
+                commentBox.innerText = `ひどい事故だったわね、${userName}。ここにいるということはアンタはMの素質を見抜かれて、転生者に選ばれたのね。最近地球で人気な異世界転生モノ？のせいで転生者が絶えないからM男に転生してもらうわ。さぁ診断を始めましょう。`;
+            }
             commentBox.classList.remove('hidden');
 
             setTimeout(() => {
@@ -244,8 +184,16 @@
         }, 1000);
     }
 
-    function startQuiz() {
+    function handleGoddessClick() {
         document.getElementById('goddess-comment').classList.add('hidden');
+        if (isCheat) {
+            showCheatMenu();
+        } else {
+            startQuiz();
+        }
+    }
+
+    function startQuiz() {
         document.getElementById('quiz').classList.remove('hidden');
         Object.keys(jobs).forEach(j => scores[j] = 0);
         showQ();
@@ -266,20 +214,38 @@
         } else { showResult(); }
     }
 
-    function showResult() {
+    // ★チートメニュー表示
+    function showCheatMenu() {
+        document.getElementById('cheat-menu').classList.remove('hidden');
+        const div = document.getElementById('cheat-choices');
+        div.innerHTML = '';
+        Object.keys(jobs).forEach(key => {
+            const btn = document.createElement('button');
+            btn.innerText = jobs[key].n;
+            btn.onclick = () => showResult(key);
+            div.appendChild(btn);
+        });
+    }
+
+    function showResult(cheatKey = null) {
         document.getElementById('quiz').classList.add('hidden');
+        document.getElementById('cheat-menu').classList.add('hidden');
         document.getElementById('result').classList.remove('hidden');
         const commentBox = document.getElementById('goddess-comment');
         
-        let maxJob = Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
+        // チート時は選択されたもの、通常時は計算
+        let maxJob = cheatKey || Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
         const job = jobs[maxJob];
-        document.getElementById('res-name-label').innerText = userName;
+        
+        document.getElementById('res-name-label').innerHTML = (isCheat ? '<span class="cheat-badge">CHEAT</span>' : '') + userName;
         document.getElementById('job-name').innerText = job.n;
         
-        if (maxJob === 'fenrir') {
-            commentBox.innerText = "「ちょ、ちょっと待って！ 伝説のフェンリルを引き当てるなんて……。しかも、普通の犬より扱いが面倒そうなドMじゃない！ アンタ、とんでもない素質を隠してたわね……」";
+        if (isCheat) {
+            commentBox.innerText = `望み通り「${job.n}」に書き換えてあげたわ。その特権、存分に使いなさい？`;
+        } else if (maxJob === 'fenrir') {
+            commentBox.innerText = "「ちょ、ちょっと待って！ 伝説のフェンリルを引き当てるなんて……。アンタ、とんでもない素質を隠してたわね……」";
         } else if (maxJob === 'sage') {
-            commentBox.innerText = "「賢者……？ いえ、これ『こじらせドM賢者』じゃない！ 知識を全部そっちの方向に使うなんて天才ね。女勇者も困惑するレベルのこだわりよ……」";
+            commentBox.innerText = "「賢者……？ いえ、これ『こじらせドM賢者』じゃない！ 女勇者も困惑するレベルのこだわりよ……」";
         } else {
             commentBox.innerText = `鑑定完了！アンタの転生先は、この「${job.n}」よ。存分に可愛がってもらいなさい。`;
         }
