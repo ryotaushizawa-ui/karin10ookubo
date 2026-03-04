@@ -2,11 +2,21 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>M男転生～女神にM男診断されて女勇者にイかされる～</title>
     <style>
         :root { --primary: #9d50bb; --bg: #0f0c29; --text: #ffffff; --gold: #ffeb3b; }
-        body { background: var(--bg); color: var(--text); font-family: sans-serif; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px 0; }
+        
+        /* 全体でダブルタップズームを抑制し、タップの反応を速くする */
+        * { touch-action: manipulation; }
+
+        body { 
+            background: var(--bg); color: var(--text); font-family: sans-serif; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            min-height: 100vh; margin: 0; padding: 20px 0;
+            overflow-x: hidden; /* 横揺れ防止 */
+        }
+
         #game-box { width: 92%; max-width: 480px; background: #1a1a2e; padding: 25px; border: 4px solid var(--primary); text-align: center; box-shadow: 10px 10px 0px #000; position: relative; }
         
         #white-out { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 9999; display: none; opacity: 0; transition: opacity 0.8s; pointer-events: none; }
@@ -18,12 +28,10 @@
         .logo-img { width: 100%; max-width: 320px; margin-bottom: 25px; }
         .goddess-img { width: 100%; height: auto; border: 2px solid #fff; background: #333; display: block; margin: 0 auto; border-radius: 4px; }
         
-        /* 吹き出しのスタイル */
         .msg-bubble { background: #fff; color: #000; padding: 20px; border-radius: 12px; margin-top: 25px; margin-bottom: 20px; font-weight: bold; font-size: 0.9rem; line-height: 1.6; position: relative; cursor: pointer; border: 3px solid var(--primary); text-align: left; }
         .msg-bubble::after { content: "▼ CLICK"; position: absolute; bottom: 5px; right: 15px; font-size: 0.6rem; color: #9d50bb; animation: blink 1s infinite; }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
         
-        /* 結果画面ではクリック指マークとアニメーションを消すためのクラス */
         .msg-bubble.no-click { cursor: default; }
         .msg-bubble.no-click::after { display: none; }
 
@@ -105,7 +113,7 @@
     let scores = {};
     let novelIndex = 0;
     let isCheat = false;
-    let canClickBubble = true; // 吹き出しをクリックできるかどうかのフラグ
+    let canClickBubble = true;
 
     const jobs = {
         fenrir: { n: "高貴なる処刑犬（フェンリル）", s: "神話級の従順、黄金の鎖", i: "魔力封じの枷", o: "全身拘束、遠吠え、マズル", c: "伝説の幻獣なのに、中身は普通の犬よりずっと高潔で、それでいて救いようのないドMだなんて……ギャップが凄まじいわね。" },
@@ -115,7 +123,7 @@
         floor: { n: "高機能な床", s: "踏まれ心地の追求", i: "高級なワックス", o: "踏みつけ", c: "もはや生物ですらないわ。女勇者に踏まれるためだけの「床」がお似合いよ。" },
         knight: { n: "屈辱の騎士", s: "プライド崩壊", i: "ボロボロの家紋旗", o: "顔面騎乗", c: "高潔な騎士が女勇者に完敗して跪く……そのギャップがたまらないんでしょ？" },
         mage: { n: "絶望の魔法使い", s: "魔力搾取(快感)", i: "童貞の証（賢者の杖）", o: "匂いかぎ、魔力抽出", c: "童貞を極めて魔法が使えるようになったのに、結局女勇者に魔力を搾り取られるだけの存在ね。一生彼女の魔力タンクとして尽くしなさい。" },
-        slime: { n: "ドMスライム", s: "全身粘液、核(コア)露出", i: "勇者の靴磨きセット", o: "指アナル（前立腺刺激）", c: "物理的な痛みには鈍感だけど、体内の『核（コア）』を直接いじられると、抗えない快感に溶けちゃうのね。女勇者に指先でかき回されるのが一番の幸せなんでしょ？" },
+        slime: { n: "ドMスライム", s: "全身粘液、核(コア)露出", i: "勇者の靴磨きセット", o: "指アナル（前立腺刺激）", c: "物理的な痛みには鈍感だけど、体内の『核（コア）』を直接いじられると、抗えない快感に溶けちゃうのね。女勇者に指先でかき回されるのが幸せなんでしょ？" },
         shield: { n: "人間盾", s: "ダメージ全吸収", i: "ボロボロの鉄板", o: "拘束、乳首舐め", c: "攻撃を避けるなんて言語道断。すべての苦痛を正面から受け止めるのがアンタの運命よ。" },
         slave: { n: "終身刑の奴隷", s: "絶対服従", i: "外れない鉄枷", o: "ビンタ、蹴り、目隠し、拘束", c: "名前すら奪われて、ただの番号で呼ばれる快感。一生彼女の所有物ね。" }
     };
@@ -179,7 +187,7 @@
             if (isCheat) {
                 commentBox.innerText = `！？！？さてはアンタ、いえ、貴方様は全知全能のドM様・・・！！すぐ全職業を解放させていただきます！！！ さぁ、お好みの「悦びの器」をお選びくださいませ！`;
             } else {
-                commentBox.innerText = `ひどい事故だったわね、${userName}。ここにいるということはアンタはMの素質を見抜かれて、転生者に選ばれたのね。最近地球で人気な異世界転生モノ？のせいで転生者が絶えないからM男に転生してもらうわ。さぁ診断を始めましょう。`;
+                commentBox.innerText = `ひどい事故だったわね、${userName}。ここにいるということはアンタはMの素質を見抜かれて、転生者に選ばれたのね。診断を始めましょう。`;
             }
             commentBox.classList.remove('hidden');
 
@@ -191,8 +199,7 @@
     }
 
     function handleGoddessClick() {
-        if (!canClickBubble) return; // 結果画面では反応させない
-        
+        if (!canClickBubble) return; 
         document.getElementById('goddess-comment').classList.add('hidden');
         if (isCheat) {
             showCheatMenu();
@@ -235,10 +242,8 @@
     }
 
     function showResult(cheatKey = null) {
-        // 重要：吹き出しのクリック機能を封印する
         canClickBubble = false; 
         document.getElementById('goddess-comment').classList.add('no-click');
-
         document.getElementById('quiz').classList.add('hidden');
         document.getElementById('cheat-menu').classList.add('hidden');
         document.getElementById('result').classList.remove('hidden');
@@ -254,8 +259,6 @@
             commentBox.innerText = `全知全能のドM様にとって、この「${job.n}」の運命など、ほんの余興に過ぎないのでしょうね……。`;
         } else if (maxJob === 'fenrir') {
             commentBox.innerText = "「ちょ、ちょっと待って！ 伝説のフェンリルを引き当てるなんて……。アンタ、とんでもない素質を隠してたわね……」";
-        } else if (maxJob === 'sage') {
-            commentBox.innerText = "「賢者……？ いえ、これ『こじらせドM賢者』じゃない！ 女勇者も困惑するレベルのこだわりよ……」";
         } else {
             commentBox.innerText = `鑑定完了！アンタの転生先は、この「${job.n}」よ。存分に可愛がってもらいなさい。`;
         }
