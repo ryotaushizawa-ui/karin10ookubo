@@ -6,10 +6,10 @@
     <title>M男転生～女神にM男診断されて女勇者にイかされる～</title>
     <style>
         :root { --primary: #9d50bb; --bg: #0f0c29; --text: #ffffff; --gold: #ffeb3b; }
-        body { background: var(--bg); color: var(--text); font-family: sans-serif; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; margin: 0; overflow-x: hidden; padding: 20px 0; }
+        body { background: var(--bg); color: var(--text); font-family: sans-serif; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px 0; }
         #game-box { width: 92%; max-width: 480px; background: #1a1a2e; padding: 25px; border: 4px solid var(--primary); text-align: center; box-shadow: 10px 10px 0px #000; position: relative; }
         
-        /* ホワイトアウト演出 */
+        /* ホワイトアウト演出（pointer-events: noneで操作不能を防ぐ） */
         #white-out { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 9999; display: none; opacity: 0; transition: opacity 0.8s; pointer-events: none; }
         
         .goddess-content { opacity: 0; display: none; }
@@ -19,7 +19,6 @@
         .logo-img { width: 100%; max-width: 320px; margin-bottom: 25px; }
         .goddess-img { width: 100%; height: auto; border: 2px solid #fff; background: #333; display: block; margin: 0 auto; border-radius: 4px; }
         
-        /* 女神の吹き出し */
         .msg-bubble { background: #fff; color: #000; padding: 20px; border-radius: 12px; margin-top: 25px; margin-bottom: 20px; font-weight: bold; font-size: 0.9rem; line-height: 1.6; position: relative; cursor: pointer; border: 3px solid var(--primary); text-align: left; }
         .msg-bubble::after { content: "▼ CLICK TO START"; position: absolute; bottom: 5px; right: 15px; font-size: 0.6rem; color: #9d50bb; animation: blink 1s infinite; }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
@@ -32,7 +31,6 @@
         .hidden { display: none !important; }
         .job-res { font-size: 2rem; color: var(--gold); text-shadow: 2px 2px #000; margin: 10px 0; font-weight: bold; }
         .stats { text-align: left; background: #000; padding: 15px; border: 1px dashed var(--gold); font-size: 0.85rem; line-height: 1.6; }
-        footer { margin-top: 30px; color: #666; font-size: 0.75rem; text-align: center; }
     </style>
 </head>
 <body>
@@ -79,10 +77,6 @@
     </div>
 </div>
 
-<footer>
-    かりんと大久保・新大久保店presents<br>M男転生project
-</footer>
-
 <script>
     let userName = "";
     let currentQ = 0;
@@ -97,7 +91,7 @@
         floor: { n: "高機能な床", s: "踏まれ心地の追求", i: "高級なワックス", o: "踏みつけ", c: "もはや生物ですらないわ。女勇者に踏まれるためだけの「床」がお似合いよ。" },
         knight: { n: "屈辱の騎士", s: "プライド崩壊", i: "ボロボロの家紋旗", o: "顔面騎乗", c: "高潔な騎士が女勇者に完敗して跪く……そのギャップがたまらないんでしょ？" },
         mage: { n: "魔力供給用の杖", s: "搾取される魔力", i: "魔力を吸い取る魔石", o: "匂いかぎ", c: "自分は魔法を放てず、ただ女勇者に魔力を吸い取られるだけの道具ね。" },
-        slime: { n: "お掃除スライム", s: "全身粘液", i: "勇者の靴磨きセット", o: "指アナル", c: "踏まれても斬られても喜ぶスライム。女勇者の足元の汚れを舐めとってなさい。" },
+        slime: { n: "お掃除スライム", s: "全身粘液", i: "勇者の靴磨きセット", o: "指アナル（前立腺刺激）", c: "物理的な痛みには鈍感だけど、体内の『核（コア）』を直接いじられると、抗えない快感に溶けちゃうのね。女勇者に指先でかき回されるのが一番の幸せなんでしょ？" },
         shield: { n: "人間盾", s: "ダメージ全吸収", i: "ボロボロの鉄板", o: "拘束、乳首舐め", c: "攻撃を避けるなんて言語道断。すべての苦痛を正面から受け止めるのがアンタの運命よ。" },
         slave: { n: "終身刑の奴隷", s: "絶対服従", i: "外れない鉄枷", o: "ビンタ、蹴り、目隠し、拘束", c: "名前すら奪われて、ただの番号で呼ばれる快感。一生彼女の所有物ね。" }
     };
@@ -201,33 +195,23 @@
         const goddessWrap = document.getElementById('goddess-wrap');
         const commentBox = document.getElementById('goddess-comment');
 
-        // 1. ホワイトアウト開始
+        // 1. 強制的に表示を予約
         whiteOut.style.display = 'block';
-        
-        // 微小な遅延を入れて確実にCSSアニメーションを発火させる
-        setTimeout(() => {
-            whiteOut.style.opacity = '1';
-        }, 50);
+        setTimeout(() => { whiteOut.style.opacity = '1'; }, 20);
 
-        // 2. 画面の裏側で切り替え作業を行う（1秒待機）
+        // 2. 1秒後に画面を確実に切り替える
         setTimeout(() => {
-            // ノベル画面を隠し、女神画面を表示
             novelScreen.classList.add('hidden');
             goddessWrap.classList.add('goddess-visible');
-            
-            // セリフを確実にセット
             commentBox.innerText = `ひどい事故だったわね……。というわけで${userName}。アンタには転生してもらうわ。今M男枠しか空いてないから。じゃ、色々きかせて？`;
             commentBox.classList.remove('hidden');
 
-            // 3. ホワイトアウトを解除して視界を戻す
+            // 3. 視界を戻す
             setTimeout(() => {
                 whiteOut.style.opacity = '0';
-                setTimeout(() => {
-                    whiteOut.style.display = 'none';
-                }, 800);
-            }, 500); // 画面が切り替わってから0.5秒後に光を消し始める
-            
-        }, 1000); // 光が最大になるまで1秒待つ
+                setTimeout(() => { whiteOut.style.display = 'none'; }, 800);
+            }, 500);
+        }, 1000);
     }
 
     function startQuiz() {
@@ -277,11 +261,6 @@
             <div style="margin-top:10px; padding:8px; background:#222; border-left:4px solid #f00; color:#ff8888;">♥おすすめ：${job.o}</div>
         `;
         
-        // GAS送信（URLはデプロイ後に書き換えてください）
-        const gasUrl = 'https://script.google.com/macros/s/AKfycbyWwbRlxKvEYemcy9eFyVjzruiNJ4LhnmZ6sMewsUmeh16Hvs3WM-deKEvK_YgFhAnfrw/exec';
-        fetch(gasUrl, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ name: userName, job: job.n }) })
-        .catch(e => console.log("送信スキップ（ローカル実行時）"));
-
         document.getElementById('btn-share').onclick = () => {
             const text = encodeURIComponent(`【M男転生診断】\n私の転生ジョブは「${job.n}」！\n#M男転生診断 #異世界転生`);
             window.open(`https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(window.location.href)}`, '_blank');
@@ -290,5 +269,3 @@
 </script>
 </body>
 </html>
-
-
