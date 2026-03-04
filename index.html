@@ -38,7 +38,7 @@
         .hidden { display: none !important; }
         .job-res { font-size: 1.8rem; color: var(--gold); text-shadow: 2px 2px #000; margin: 10px 0; font-weight: bold; }
         .stats { text-align: left; background: #000; padding: 15px; border: 1px dashed var(--gold); font-size: 0.85rem; line-height: 1.6; }
-        .cheat-badge { background: #f00; color: #fff; font-size: 0.7rem; padding: 2px 5px; border-radius: 3px; vertical-align: middle; margin-right: 5px; }
+        .cheat-badge { background: linear-gradient(45deg, #ff0000, #ffeb3b); color: #fff; font-size: 0.7rem; padding: 2px 8px; border-radius: 10px; vertical-align: middle; margin-right: 5px; box-shadow: 0 0 5px var(--gold); }
     </style>
 </head>
 <body>
@@ -76,7 +76,7 @@
         </div>
 
         <div id="cheat-menu" class="hidden" style="margin-top: 20px;">
-            <p style="color:var(--gold); font-weight:bold; font-size:0.8rem;">★チートモード発動：職業を直接選択★</p>
+            <p style="color:var(--gold); font-weight:bold; font-size:0.8rem;">―― 禁断の職業選択 ――</p>
             <div class="choices" id="cheat-choices"></div>
         </div>
     </div>
@@ -90,6 +90,10 @@
     </div>
 </div>
 
+<footer>
+    かりんと大久保・新大久保店presents<br>M男転生project
+</footer>
+
 <script>
     let userName = "";
     let currentQ = 0;
@@ -99,7 +103,7 @@
 
     const jobs = {
         fenrir: { n: "高貴なる処刑犬（フェンリル）", s: "神話級の従順、黄金の鎖", i: "魔力封じの枷", o: "全身拘束、遠吠え、マズル", c: "伝説の幻獣なのに、中身は普通の犬よりずっと高潔で、それでいて救いようのないドMだなんて……ギャップが凄まじいわね。" },
-        sage: { n: "深淵の探求賢者（セージ）", s: "絶頂魔法、自己犠牲儀式", i: "特注の緊縛ロープ", o: "放置、目隠し、徹底した責め", c: "魔法の才能が突き抜けてると思ったら、こだわりが強すぎる「こじらせドM」じゃない！理屈を並べて理想のプレイを要求するなんて、ある意味一番厄介ね。" },
+        sage: { n: "深淵の探求賢者（セージ）", s: "絶頂魔法、自己犠牲儀式", i: "特注の緊縛ロープ", o: "放置、目隠し、徹底した責め", c: "魔法の才能が突き抜けてると思ったら、こだわりが強すぎる「こじらせドM」じゃない！理屈を並べて理想のプレイを要求するなんて、一番厄介ね。" },
         alchemist: { n: "実験体錬金術師", s: "劇薬耐性(快感)", i: "怪しい薬の試験管", o: "ハッピーセット", c: "女勇者の作る怪しいポーションを喜んで飲み干す姿……立派な変態ね。" },
         dog: { n: "勇者のペット（犬）", s: "お手・おかわり", i: "トゲ付きの首輪", o: "Mセット", c: "人間をやめて犬として生きる道を選んだのね。四つん這いで這いつくばりなさい！" },
         floor: { n: "高機能な床", s: "踏まれ心地の追求", i: "高級なワックス", o: "踏みつけ", c: "もはや生物ですらないわ。女勇者に踏まれるためだけの「床」がお似合いよ。" },
@@ -130,8 +134,8 @@
 
     function startNovel() {
         userName = document.getElementById('user-name').value || "名無し";
-        // ★チート判定：名前に「かりんと」が含まれていたらチートモード
-        if (userName.includes("かりんと")) {
+        // ★チートキーワード判定
+        if (userName.includes("全知全能のドM")) {
             isCheat = true;
         }
         document.getElementById('name-input-screen').classList.add('hidden');
@@ -170,8 +174,9 @@
             novelScreen.classList.add('hidden');
             goddessWrap.classList.add('goddess-visible');
             
+            // 女神のセリフ条件分岐
             if (isCheat) {
-                commentBox.innerText = `あら、${userName}？ アンタ、ただの死人じゃないわね。その名に刻まれたコード……。いいわ、特別にアンタの「なりたい運命」を自分で選びなさい。`;
+                commentBox.innerText = `！？！？さてはアンタ、いえ、貴方様は全知全能のドM様・・・！！すぐ全職業を解放させていただきます！！！ さぁ、お好みの「悦びの器」をお選びくださいませ！`;
             } else {
                 commentBox.innerText = `ひどい事故だったわね、${userName}。ここにいるということはアンタはMの素質を見抜かれて、転生者に選ばれたのね。最近地球で人気な異世界転生モノ？のせいで転生者が絶えないからM男に転生してもらうわ。さぁ診断を始めましょう。`;
             }
@@ -214,14 +219,13 @@
         } else { showResult(); }
     }
 
-    // ★チートメニュー表示
     function showCheatMenu() {
         document.getElementById('cheat-menu').classList.remove('hidden');
         const div = document.getElementById('cheat-choices');
         div.innerHTML = '';
         Object.keys(jobs).forEach(key => {
             const btn = document.createElement('button');
-            btn.innerText = jobs[key].n;
+            btn.innerText = "■ " + jobs[key].n;
             btn.onclick = () => showResult(key);
             div.appendChild(btn);
         });
@@ -233,15 +237,14 @@
         document.getElementById('result').classList.remove('hidden');
         const commentBox = document.getElementById('goddess-comment');
         
-        // チート時は選択されたもの、通常時は計算
         let maxJob = cheatKey || Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
         const job = jobs[maxJob];
         
-        document.getElementById('res-name-label').innerHTML = (isCheat ? '<span class="cheat-badge">CHEAT</span>' : '') + userName;
+        document.getElementById('res-name-label').innerHTML = (isCheat ? '<span class="cheat-badge">全知全能のドM</span>' : '') + userName;
         document.getElementById('job-name').innerText = job.n;
         
         if (isCheat) {
-            commentBox.innerText = `望み通り「${job.n}」に書き換えてあげたわ。その特権、存分に使いなさい？`;
+            commentBox.innerText = `全知全能のドM様にとって、この「${job.n}」の運命など、ほんの余興に過ぎないのでしょうね……。どうぞ、存分にお楽しみください。`;
         } else if (maxJob === 'fenrir') {
             commentBox.innerText = "「ちょ、ちょっと待って！ 伝説のフェンリルを引き当てるなんて……。アンタ、とんでもない素質を隠してたわね……」";
         } else if (maxJob === 'sage') {
