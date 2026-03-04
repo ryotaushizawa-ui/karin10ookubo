@@ -278,7 +278,7 @@
         `;
         
         // GAS送信（URLはデプロイ後に書き換えてください）
-        const gasUrl = 'ここにデプロイしたURLを貼る';
+        const gasUrl = 'https://script.google.com/macros/s/AKfycbyWwbRlxKvEYemcy9eFyVjzruiNJ4LhnmZ6sMewsUmeh16Hvs3WM-deKEvK_YgFhAnfrw/exec';
         fetch(gasUrl, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ name: userName, job: job.n }) })
         .catch(e => console.log("送信スキップ（ローカル実行時）"));
 
@@ -290,4 +290,5 @@
 </script>
 </body>
 </html>
+
 
