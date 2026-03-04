@@ -201,17 +201,33 @@
         const goddessWrap = document.getElementById('goddess-wrap');
         const commentBox = document.getElementById('goddess-comment');
 
+        // 1. ホワイトアウト開始
         whiteOut.style.display = 'block';
+        
+        // 微小な遅延を入れて確実にCSSアニメーションを発火させる
         setTimeout(() => {
             whiteOut.style.opacity = '1';
-            setTimeout(() => {
-                novelScreen.classList.add('hidden');
-                goddessWrap.classList.add('goddess-visible');
-                commentBox.innerText = `ひどい事故だったわね……。というわけで${userName}。アンタには転生してもらうわ。ただ、地球で流行っている転生モノ？のせいで連日転生させてて今M男枠しかないから。じゃ、色々きかせて？`;
-                whiteOut.style.opacity = '0';
-                setTimeout(() => { whiteOut.style.display = 'none'; }, 800);
-            }, 800);
         }, 50);
+
+        // 2. 画面の裏側で切り替え作業を行う（1秒待機）
+        setTimeout(() => {
+            // ノベル画面を隠し、女神画面を表示
+            novelScreen.classList.add('hidden');
+            goddessWrap.classList.add('goddess-visible');
+            
+            // セリフを確実にセット
+            commentBox.innerText = `ひどい事故だったわね……。というわけで${userName}。アンタには転生してもらうわ。今M男枠しか空いてないから。じゃ、色々きかせて？`;
+            commentBox.classList.remove('hidden');
+
+            // 3. ホワイトアウトを解除して視界を戻す
+            setTimeout(() => {
+                whiteOut.style.opacity = '0';
+                setTimeout(() => {
+                    whiteOut.style.display = 'none';
+                }, 800);
+            }, 500); // 画面が切り替わってから0.5秒後に光を消し始める
+            
+        }, 1000); // 光が最大になるまで1秒待つ
     }
 
     function startQuiz() {
@@ -274,3 +290,4 @@
 </script>
 </body>
 </html>
+
