@@ -2,22 +2,41 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>M男転生～女神にM男診断されて女勇者にイかされる～</title>
     <style>
         :root { --primary: #9d50bb; --bg: #0f0c29; --text: #ffffff; --gold: #ffeb3b; }
         
-        /* 全体でダブルタップズームを抑制し、タップの反応を速くする*/
-        * { touch-action: manipulation; }
+        /* 全体の横スクロールを完全にロック */
+        html, body {
+            overflow-x: hidden;
+            width: 100%;
+            position: relative;
+            margin: 0;
+            padding: 0;
+            /* ダブルタップズーム、ブラウザ独自のジェスチャーを抑制 */
+            touch-action: pan-y; 
+        }
 
         body { 
             background: var(--bg); color: var(--text); font-family: sans-serif; 
             display: flex; flex-direction: column; justify-content: center; align-items: center; 
-            min-height: 100vh; margin: 0; padding: 20px 0;
-            overflow-x: hidden; /* 横揺れ防止*/
+            min-height: 100vh;
+            padding: 20px 0;
         }
 
-        #game-box { width: 92%; max-width: 480px; background: #1a1a2e; padding: 25px; border: 4px solid var(--primary); text-align: center; box-shadow: 10px 10px 0px #000; position: relative; }
+        /* ゲーム画面の外枠 */
+        #game-box { 
+            width: 90%; 
+            max-width: 480px; 
+            background: #1a1a2e; 
+            padding: 25px; 
+            border: 4px solid var(--primary); 
+            text-align: center; 
+            box-shadow: 10px 10px 0px #000; 
+            position: relative;
+            box-sizing: border-box; /* パディングによる幅の突き抜けを防止 */
+        }
         
         #white-out { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 9999; display: none; opacity: 0; transition: opacity 0.8s; pointer-events: none; }
         
@@ -25,39 +44,36 @@
         .goddess-visible { opacity: 1 !important; display: block !important; animation: fadeIn 1.5s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .logo-img { width: 100%; max-width: 320px; margin-bottom: 25px; }
+        .logo-img { width: 100%; max-width: 320px; margin-bottom: 25px; height: auto; }
         .goddess-img { width: 100%; height: auto; border: 2px solid #fff; background: #333; display: block; margin: 0 auto; border-radius: 4px; }
         
-        .msg-bubble { background: #fff; color: #000; padding: 20px; border-radius: 12px; margin-top: 25px; margin-bottom: 20px; font-weight: bold; font-size: 0.9rem; line-height: 1.6; position: relative; cursor: pointer; border: 3px solid var(--primary); text-align: left; }
+        .msg-bubble { background: #fff; color: #000; padding: 20px; border-radius: 12px; margin-top: 25px; margin-bottom: 20px; font-weight: bold; font-size: 0.9rem; line-height: 1.6; position: relative; cursor: pointer; border: 3px solid var(--primary); text-align: left; box-sizing: border-box; }
         .msg-bubble::after { content: "▼ CLICK"; position: absolute; bottom: 5px; right: 15px; font-size: 0.6rem; color: #9d50bb; animation: blink 1s infinite; }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
         
-        /* 結果画面ではクリック指マークとアニメーションを消すためのクラス*/
         .msg-bubble.no-click { cursor: default; }
         .msg-bubble.no-click::after { display: none; }
 
-        #user-name { padding: 12px; width: 80%; margin-bottom: 20px; border-radius: 5px; border: 2px solid var(--primary); text-align: center; font-size: 1rem; background: #000; color: #fff; }
-        .choices { display: grid; gap: 10px; }
+        #user-name { padding: 12px; width: 100%; max-width: 300px; margin-bottom: 20px; border-radius: 5px; border: 2px solid var(--primary); text-align: center; font-size: 1rem; background: #000; color: #fff; box-sizing: border-box; }
+        .choices { display: grid; gap: 10px; width: 100%; }
 
         button { 
-            background: #eee; border: none; padding: 15px; font-weight: bold; cursor: pointer; box-shadow: 4px 4px 0px #666; font-size: 0.95rem; color: #000; transition: 0.1s; width: 100%; text-align: left; -webkit-tap-highlight-color: transparent; /* スマホのタップ青枠消し*/
+            background: #eee; border: none; padding: 15px; font-weight: bold; cursor: pointer; box-shadow: 4px 4px 0px #666; font-size: 0.95rem; color: #000; transition: 0.1s; width: 100%; text-align: left; -webkit-tap-highlight-color: transparent; box-sizing: border-box;
+            touch-action: manipulation;
         }
 
-        /* PC環境のみホバーを有効にする*/
         @media (hover: hover) {
             button:hover { background: var(--gold); transform: translate(2px, 2px); box-shadow: 2px 2px 0px #666; }
         }
 
-        /* スマホ・PC共通：押した瞬間だけ黄色くする*/
         button:active { background: var(--gold) !important; transform: translate(2px, 2px); box-shadow: 2px 2px 0px #666; }
 
         .hidden { display: none !important; }
-        .job-res { font-size: 1.8rem; color: var(--gold); text-shadow: 2px 2px #000; margin: 10px 0; font-weight: bold; }
-        .stats { text-align: left; background: #000; padding: 15px; border: 1px dashed var(--gold); font-size: 0.85rem; line-height: 1.6; }
+        .job-res { font-size: 1.6rem; color: var(--gold); text-shadow: 2px 2px #000; margin: 10px 0; font-weight: bold; word-wrap: break-word; }
+        .stats { text-align: left; background: #000; padding: 15px; border: 1px dashed var(--gold); font-size: 0.85rem; line-height: 1.6; box-sizing: border-box; }
         .cheat-badge { background: linear-gradient(45deg, #ff0000, #ffeb3b); color: #fff; font-size: 0.7rem; padding: 2px 8px; border-radius: 10px; vertical-align: middle; margin-right: 5px; box-shadow: 0 0 5px var(--gold); }
         
-        /* フッターのスタイル修正：文字を小さく、色を薄く*/
-        footer { margin-top: 30px; color: #666; font-size: 0.75rem; text-align: center; }
+        footer { margin-top: 30px; color: #666; font-size: 0.75rem; text-align: center; width: 100%; }
     </style>
 </head>
 <body>
@@ -79,7 +95,7 @@
 
     <div id="novel-screen" class="hidden">
         <div id="novel-text" style="min-height:150px; display:flex; align-items:center; justify-content:center; line-height:1.8; padding: 0 10px;"></div>
-        <button onclick="nextNovel()" id="btn-next" style="width:auto; padding:10px 40px; margin-top:20px; text-align:center;">次へ</button>
+        <button onclick="nextNovel()" id="btn-next" style="width:auto; padding:10px 80px; margin-top:20px; text-align:center;">次へ</button>
     </div>
 
     <div id="goddess-wrap" class="goddess-content">
@@ -120,23 +136,23 @@
     let scores = {};
     let novelIndex = 0;
     let isCheat = false;
-    let canClickBubble = true; // 吹き出しをクリックできるかどうかのフラグ
+    let canClickBubble = true;
 
     const jobs = {
         fenrir: { n: "高貴なる処刑犬（フェンリル）", s: "神話級の従順、黄金の鎖", i: "魔力封じの枷", o: "全身拘束、遠吠え、マズル", c: "伝説の幻獣なのに、中身は普通の犬よりずっと高潔で、それでいて救いようのないドMだなんて……ギャップが凄まじいわね。" },
-        sage: { n: "深淵の探求賢者（セージ）", s: "絶頂魔法、自己犠牲儀式", i: "特注の緊縛ロープ", o: "放置、目隠し、徹底した責め", c: "魔法の才能が突き抜けてると思ったら、こだわりが強すぎる「こじらせドM」じゃない！理屈を並べて理想のプレイを要求するなんて、ある意味一番厄介ね。" },
+        sage: { n: "深淵の探求賢者（セージ）", s: "絶頂魔法、自己犠牲儀式", i: "特注の緊縛ロープ", o: "放置、目隠し、徹底した責め", c: "魔法の才能が突き抜けてると思ったら、こだわりが強すぎる「こじらせドM」じゃない！理屈を並べて理想のプレイを要求するなんて、一番厄介ね。" },
         alchemist: { n: "実験体錬金術師", s: "劇薬耐性(快感)", i: "怪しい薬の試験管", o: "ハッピーセット", c: "女勇者の作る怪しいポーションを喜んで飲み干す姿……立派な変態ね。" },
         dog: { n: "勇者のペット（犬）", s: "お手・おかわり", i: "トゲ付きの首輪", o: "Mセット", c: "人間をやめて犬として生きる道を選んだのね。四つん這いで這いつくばりなさい！" },
         floor: { n: "高機能な床", s: "踏まれ心地の追求", i: "高級なワックス", o: "踏みつけ", c: "もはや生物ですらないわ。女勇者に踏まれるためだけの「床」がお似合いよ。" },
         knight: { n: "屈辱の騎士", s: "プライド崩壊", i: "ボロボロの家紋旗", o: "顔面騎乗", c: "高潔な騎士が女勇者に完敗して跪く……そのギャップがたまらないんでしょ？" },
         mage: { n: "絶望の魔法使い", s: "魔力搾取(快感)", i: "童貞の証（賢者の杖）", o: "匂いかぎ、魔力抽出", c: "童貞を極めて魔法が使えるようになったのに、結局女勇者に魔力を搾り取られるだけの存在ね。一生彼女の魔力タンクとして尽くしなさい。" },
         slime: { n: "ドMスライム", s: "全身粘液、核(コア)露出", i: "勇者の靴磨きセット", o: "指アナル（前立腺刺激）", c: "物理的な痛みには鈍感だけど、体内の『核（コア）』を直接いじられると、抗えない快感に溶けちゃうのね。女勇者に指先でかき回されるのが一番の幸せなんでしょ？" },
-        shield: { n: "人間盾", s: "ダメージ全吸収", i: "ボロボロの鉄板", o: "拘束、乳首舐め", c: "攻撃を避けるなんて言語道断. すべての苦痛を正面から受け止めるのがアンタの運命よ。" },
+        shield: { n: "人間盾", s: "ダメージ全吸収", i: "ボロボロの鉄板", o: "拘束、乳首舐め", c: "攻撃を避けるなんて言語道断。すべての苦痛を正面から受け止めるのがアンタの運命よ。" },
         slave: { n: "終身刑の奴隷", s: "絶対服従", i: "外れない鉄枷", o: "ビンタ、蹴り、目隠し、拘束", c: "名前すら奪われて、ただの番号で呼ばれる快感。一生彼女の所有物ね。" }
     };
 
     const qs = [
-        { q: "女勇者に「今日から人間禁止. 犬になりなさい」と言われたら？", a: [{t: "「ワン！」と吠えて尻尾を振る", j: "dog"}, {t: "「貴女には屈しましょう」と跪く", j: "fenrir"}, {t: "屈辱に震えながら靴を見つめる", j: "knight"}, {t: "「管理プロセスを教えてください」と聞く", j: "sage"}]},
+        { q: "女勇者に「今日から人間禁止。犬になりなさい」と言われたら？", a: [{t: "「ワン！」と吠えて尻尾を振る", j: "dog"}, {t: "「貴女には屈しましょう」と跪く", j: "fenrir"}, {t: "屈辱に震えながら靴を見つめる", j: "knight"}, {t: "「管理プロセスを教えてください」と聞く", j: "sage"}]},
         { q: "パーティの休憩中、女勇者が椅子に座ろうとしています。あなたの行動は？", a: [{t: "無言で床になる", j: "floor"}, {t: "「ここが座り心地が良いです」と椅子になる", j: "sage"}, {t: "スライムになり靴の汚れを舐める", j: "slime"}, {t: "盾を敷き、自分もろとも踏まれる", j: "shield"}]},
         { q: "女勇者が「新しい毒薬の実験台が必要だ」と言い出しました。", a: [{t: "「もっと強いのを！」と飲み干す", j: "alchemist"}, {t: "「これも騎士の修行……」と飲む", j: "knight"}, {t: "身体が溶けて彼女の足元に広がる", j: "slime"}, {t: "鎖で繋がれたまま拒否せず飲む", j: "slave"}]},
         { q: "敵の強力な魔法が放たれました。あなたの「理想」の守り方は？", a: [{t: "鉄板のように硬直して衝撃をゼロにする", j: "shield"}, {t: "尊厳を吸い取られながら障壁を張る", j: "mage"}, {t: "守護獣として蹂躙される", j: "fenrir"}, {t: "最も苦痛が長く続く受け方を提案する", j: "sage"}]},
@@ -155,10 +171,8 @@
 
     function startNovel() {
         userName = document.getElementById('user-name').value || "名無し";
-        // ★チートキーワード判定
         if (userName.includes("全知全能のドM")) {
             isCheat = true;
-            // キーワード一致時はノベル画面を表示せず、即女神へ
             transitionToGoddess();
         } else {
             document.getElementById('name-input-screen').classList.add('hidden');
@@ -168,7 +182,7 @@
     }
 
     function showNextSentence() {
-        const scenario = [`俺の名前は、${userName}。`,"ごく普通の毎日を送る男だ。","だが、見たこともない色の星が流れた気がした。","「……ん？」","背後から、凄まじい轟音が迫る。","振り返ると、そこには視界を埋め尽くすほどの光が――"];
+        const scenario = [`俺の名前は、${userName}。`,"ごく普通の毎日を送る男だ。","だが、見たこともない色の星が流れた。","「……ん？」","背後から、凄まじい轟音が迫る。","振り返ると、そこには視界を埋め尽くすほどの光が――"];
         if (novelIndex < scenario.length) {
             document.getElementById('novel-text').innerText = scenario[novelIndex];
             novelIndex++;
@@ -189,15 +203,14 @@
         setTimeout(() => { whiteOut.style.opacity = '1'; }, 20);
 
         setTimeout(() => {
-            // ノベル画面と名前入力画面の両方を確実に隠す
             novelScreen.classList.add('hidden');
             nameScreen.classList.add('hidden');
             goddessWrap.classList.add('goddess-visible');
             
             if (isCheat) {
-                commentBox.innerText = `！？！？さてはアンタ、いえ、貴方様は全知全能のドM様・・・！！すぐ全職業を解放させていただきます！！！ さぁ、お好みの「悦びの器」をお選びくださいませ！`;
+                commentBox.innerText = `！？！？さてはアンタ、いえ、貴方様は全知全能のドM様・・・！！すぐ全職業を解放させていただきます！！！`;
             } else {
-                commentBox.innerText = `ひどい事故だったわね、${userName}。ここにいるということはアンタはMの素質を見抜かれて、転生者に選ばれたのね。診断を始めましょう。`;
+                commentBox.innerText = `ひどい事故だったわね、${userName}。アンタはMの素質を見抜かれて転生者に選ばれたの。診断を始めましょう。`;
             }
             commentBox.classList.remove('hidden');
 
@@ -209,8 +222,7 @@
     }
 
     function handleGoddessClick() {
-        if (!canClickBubble) return; // 結果画面では反応させない
-        
+        if (!canClickBubble) return; 
         document.getElementById('goddess-comment').classList.add('hidden');
         if (isCheat) {
             showCheatMenu();
@@ -253,10 +265,8 @@
     }
 
     function showResult(cheatKey = null) {
-        // 重要：吹き出しのクリック機能を封印する
         canClickBubble = false; 
         document.getElementById('goddess-comment').classList.add('no-click');
-
         document.getElementById('quiz').classList.add('hidden');
         document.getElementById('cheat-menu').classList.add('hidden');
         document.getElementById('result').classList.remove('hidden');
@@ -270,12 +280,8 @@
         
         if (isCheat) {
             commentBox.innerText = `全知全能のドM様にとって、この「${job.n}」の運命など、ほんの余興に過ぎないのでしょうね……。`;
-        } else if (maxJob === 'fenrir') {
-            commentBox.innerText = "「ちょ、ちょっと待って！ 伝説のフェンリルを引き当てるなんて……。アンタ、とんでもない素質を隠してたわね……」";
-        } else if (maxJob === 'sage') {
-            commentBox.innerText = "「賢者……？ いえ、これ『こじらせドM賢者』じゃない！ 女勇者も困惑するレベルのこだわりよ……」";
         } else {
-            commentBox.innerText = `鑑定完了！アンタの転生先は、この「${job.n}」よ. 存分に可愛がってもらいなさい.`;
+            commentBox.innerText = `鑑定完了！アンタの転生先は、この「${job.n}」よ。存分に可愛がってもらいなさい。`;
         }
         commentBox.classList.remove('hidden');
 
